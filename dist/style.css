@@ -17,6 +17,7 @@ header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:20px
 .tagline{font-family:var(--serif);font-weight:500;font-size:24px;line-height:1.4;margin:0 0 12px}
 .sub{color:var(--ink-soft);font-size:14px;margin:0 0 28px;max-width:42em}
 h1{font-family:var(--serif);font-weight:500;font-size:26px;line-height:1.4;margin:0 0 24px}
+h3{font-size:14px;margin:16px 0 6px}
 .panel{background:var(--panel);border:1px solid var(--rule);padding:20px;margin-bottom:16px}
 .panel h2{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink-soft);margin:0 0 12px;
@@ -26,7 +27,7 @@ h1{font-family:var(--serif);font-weight:500;font-size:26px;line-height:1.4;margi
   background:var(--clear);padding:9px 15px;text-decoration:none}
 .nosource{font-size:13.5px;color:var(--caution);background:#FBF6EE;
   border-left:2px solid var(--caution);padding:9px 11px}
-ol{margin:0;padding-left:20px;font-size:14px;line-height:1.8}
+ol,ul{margin:0;padding-left:20px;font-size:14px;line-height:1.8}
 .memo{font-size:13.5px;color:var(--ink-soft);line-height:1.6;margin:0}
 .unver{font-size:12.5px;color:var(--caution);background:#FBF6EE;
   border-left:2px solid var(--caution);padding:9px 11px;margin-bottom:16px}
@@ -40,3 +41,8 @@ ol{margin:0;padding-left:20px;font-size:14px;line-height:1.8}
 .doclist li:last-child{border-bottom:0}
 .tag{font-family:var(--mono);font-size:10px;color:var(--caution);
   border:1px solid var(--caution);padding:1px 5px;margin-left:6px}
+.table-wrap{overflow-x:auto}
+.diff-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.diff-table th,.diff-table td{border-bottom:1px solid var(--rule-soft);padding:8px 6px;text-align:left}
+.diff-table th{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);text-transform:uppercase}
+.diff-table a{color:var(--ink)}
