@@ -1,0 +1,42 @@
+
+:root{
+  --paper:#FAF8F3; --panel:#FFFFFF; --ink:#171B1F; --ink-soft:#5C666E;
+  --rule:#BFD1DB; --rule-soft:#E4EBEF;
+  --stamp:#B8362C; --caution:#B77518; --clear:#2F6B52;
+  --serif:"Noto Serif KR",serif; --sans:system-ui,-apple-system,sans-serif;
+  --mono:ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.65}
+.wrap{max-width:760px;margin:0 auto;padding:24px 24px 80px}
+header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:20px}
+.mark{font-family:var(--serif);font-weight:700;font-size:26px;letter-spacing:-.02em;
+  color:var(--ink);text-decoration:none}
+.mark em{font-style:normal;color:var(--stamp)}
+.tagline{font-family:var(--serif);font-weight:500;font-size:24px;line-height:1.4;margin:0 0 12px}
+.sub{color:var(--ink-soft);font-size:14px;margin:0 0 28px;max-width:42em}
+h1{font-family:var(--serif);font-weight:500;font-size:26px;line-height:1.4;margin:0 0 24px}
+.panel{background:var(--panel);border:1px solid var(--rule);padding:20px;margin-bottom:16px}
+.panel h2{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-soft);margin:0 0 12px;
+  padding-bottom:8px;border-bottom:1px solid var(--rule-soft)}
+.issuer{font-weight:600;margin:0 0 10px}
+.cta{display:inline-block;font-size:13.5px;font-weight:600;color:#fff;
+  background:var(--clear);padding:9px 15px;text-decoration:none}
+.nosource{font-size:13.5px;color:var(--caution);background:#FBF6EE;
+  border-left:2px solid var(--caution);padding:9px 11px}
+ol{margin:0;padding-left:20px;font-size:14px;line-height:1.8}
+.memo{font-size:13.5px;color:var(--ink-soft);line-height:1.6;margin:0}
+.unver{font-size:12.5px;color:var(--caution);background:#FBF6EE;
+  border-left:2px solid var(--caution);padding:9px 11px;margin-bottom:16px}
+.note{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-top:24px;
+  padding-top:14px;border-top:1px solid var(--rule-soft)}
+.back{font-size:13.5px;margin-top:10px}
+.back a, .doclist a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+.back a:hover, .doclist a:hover{border-color:var(--stamp)}
+.doclist{list-style:none;margin:0;padding:0}
+.doclist li{padding:7px 0;font-size:14.5px;border-bottom:1px solid var(--rule-soft)}
+.doclist li:last-child{border-bottom:0}
+.tag{font-family:var(--mono);font-size:10px;color:var(--caution);
+  border:1px solid var(--caution);padding:1px 5px;margin-left:6px}
