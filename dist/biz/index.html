@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>사업자번호 조회 — noai.kr</title>
+<meta name="description" content="사업자등록번호 10자리로 국세청 등록상태와 공정위 통신판매사업자 등록 정보를 한 번에 확인합니다.">
+<link rel="canonical" href="https://noai.kr/biz/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#171B1F">
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAF8F3'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='22' font-weight='700' text-anchor='middle' fill='%23B8362C'%3En%3C/text%3E%3C/svg%3E">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "사업자번호 조회",
+  "url": "https://noai.kr/biz/",
+  "applicationCategory": "UtilityApplication",
+  "isPartOf": {"@type": "WebSite", "name": "noai.kr", "url": "https://noai.kr/"},
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}
+}
+</script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="mark" href="/">no<em>ai</em>.kr</a>
+  </header>
+<main>
+<h1>사업자번호 조회</h1>
+<p class="sub">국세청 등록상태와 공정위 통신판매사업자 등록 정보를 사실 그대로 보여드립니다. 위조·사기 여부를 판정하지 않습니다.</p>
+<section class="panel">
+<form id="f">
+<p><label>사업자등록번호 (10자리)<br><input name="b_no" required inputmode="numeric" placeholder="123-45-67890" class="tin"></label></p>
+<details><summary>개업일자·대표자명으로 진위확인(선택)</summary>
+<p><label>개업일자<br><input name="start_dt" placeholder="20260101" class="tin"></label></p>
+<p><label>대표자명<br><input name="p_nm" placeholder="홍길동" class="tin"></label></p>
+<p class="memo">입력하신 대표자명은 조회 요청에만 사용되고 저장되지 않습니다.</p>
+</details>
+<p><button type="submit">조회하기</button></p>
+</form>
+<div id="result" aria-live="polite"></div>
+</section>
+<p class="back"><a href="/">← 홈으로</a></p>
+</main>
+<script>
+function esc(s){ const d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
+function row(k,v){ return v ? `<div class="kv"><span>${esc(k)}</span><b>${esc(v)}</b></div>` : ""; }
+document.querySelector("#f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector("button");
+  const r = document.querySelector("#result");
+  btn.disabled = true; r.textContent = "조회 중…";
+  try {
+    const res = await fetch("/api/biz", { method: "POST", body: new FormData(e.target) });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      r.textContent = j.detail || "조회에 실패했습니다.";
+      return;
+    }
+    render(await res.json(), r);
+  } catch {
+    r.textContent = "네트워크 오류입니다. 잠시 후 다시 시도해 주세요.";
+  } finally {
+    btn.disabled = false;
+  }
+});
+function render(d, r) {
+  const nts = d.nts || {}, ftc = d.ftc || {};
+  let h = `<section class="panel"><h2>국세청</h2><p>${esc(nts.message || "")}</p>`
+        + row("상태", nts.b_stt) + row("과세유형", nts.tax_type) + row("폐업일", nts.end_dt)
+        + `</section>`;
+  h += `<section class="panel"><h2>공정위 통신판매사업자 등록</h2>`;
+  if (ftc.available) {
+    for (const rec of (ftc.records || [])) {
+      h += Object.entries(rec).filter(([, v]) => v).map(([k, v]) => row(k, v)).join("");
+    }
+  } else if (ftc.error) {
+    h += `<p class="memo">공정위 조회 중 일시 오류가 발생했습니다 — 국세청 결과만 표시합니다.</p>`;
+  } else {
+    h += `<p class="memo">공정위 통신판매사업자 등록 정보가 없습니다. `
+       + `통신판매업 신고 의무가 없는 오프라인 사업자 등은 정상적으로 등록이 없을 수 있습니다.</p>`;
+  }
+  h += `</section>`;
+  h += `<p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 사실만 보여드립니다. 최종 판단은 이용자 몫입니다.</p>`;
+  r.innerHTML = h;
+}
+</script>
+</div>
+</body>
+</html>

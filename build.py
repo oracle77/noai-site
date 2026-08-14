@@ -279,20 +279,29 @@ def render_institution_page(inst):
     if inst["body"]:
         body = inst["body"]
     else:
+        by_type = {e["type"]: e for e in REGISTRY}
         items = ''.join(
             f'<li><a href="/docs/{SLUGS[d]}/">{esc(d)}</a></li>' for d in inst["docs"]
         )
-        body = (
-            f"<h1>{esc(inst['name'])}</h1>"
-            '<section class="panel"><h2>이 페이지에서 확인할 수 있는 문서</h2>'
-            f'<ul class="doclist">{items}</ul></section>'
-            '<section class="panel">'
-            f'<a class="cta" href="{esc(inst["url"])}" target="_blank" rel="noopener">{esc(inst["name"])} 바로가기 →</a>'
-            '<p class="memo">문서별 상세 절차(번호 위치, 유효기간 등)는 준비 중입니다. '
-            '위 바로가기에서 문서에 표기된 확인번호로 직접 조회할 수 있습니다.</p>'
-            '</section>'
-            '<p class="back"><a href="/">← 전체 문서유형 목록으로</a></p>'
-        )
+        parts = [
+            f"<h1>{esc(inst['name'])}</h1>",
+            '<section class="panel"><h2>이 페이지에서 확인할 수 있는 문서</h2>',
+            f'<ul class="doclist">{items}</ul></section>',
+            '<section class="panel">',
+            f'<a class="cta" href="{esc(inst["url"])}" target="_blank" rel="noopener">{esc(inst["name"])} 바로가기 →</a>',
+            '</section>',
+        ]
+        for d in inst["docs"]:
+            e = by_type[d]
+            parts.append(f'<section class="panel"><h2>{esc(d)} 조회 절차</h2>')
+            if not e["verified"]:
+                parts.append(f'<div class="unver">{esc(DISCLAIMER)}</div>')
+            if e["steps"]:
+                parts.append('<ol>' + ''.join(f'<li>{esc(s)}</li>' for s in e["steps"]) + '</ol>')
+            parts.append(f'<p class="memo">유효기간: {esc(e["validity"])}</p>')
+            parts.append('</section>')
+        parts.append('<p class="back"><a href="/">← 전체 문서유형 목록으로</a></p>')
+        body = '\n'.join(parts)
 
     return PAGE_SHELL.format(head=head, body=body)
 
@@ -376,7 +385,27 @@ def render_index():
                  '19개 문서유형별로 확인처와 절차를 정리했습니다. '
                  'noai.kr은 위조 여부를 판정하지 않습니다 — 확인하는 방법만 안내합니다.</p>')
 
-    # TODO(다음 회차, STRUCTURE_TASK step5): "내 서류는 어디서 확인하나" 표 + /biz/ 조회 CTA
+    body.append('<section class="panel"><h2>사업자번호로 바로 확인하기</h2>'
+                 '<p>거래처가 폐업했는지, 통신판매업 신고를 했는지 번호 10자리만 넣으면 즉시 확인됩니다.</p>'
+                 '<a class="cta" href="/biz/">사업자번호 조회 →</a></section>')
+
+    inst_name = {inst["slug"]: inst["name"] for inst in INSTITUTIONS}
+    common_mistake = {"사업자등록증명·휴폐업사실증명", "가족관계증명서"}
+    body.append('<section class="panel"><h2>내 서류는 어디서 확인하나</h2>'
+                 '<div class="table-wrap"><table class="diff-table">'
+                 '<thead><tr><th>서류</th><th>확인처</th></tr></thead><tbody>')
+    for e in REGISTRY:
+        t = e["type"]
+        slug = SLUGS[t]
+        inst_slug = DOC_INST.get(t)
+        where = f'<a href="/{inst_slug}/">{esc(inst_name[inst_slug])}</a>' if inst_slug else "조회처 없음"
+        strong = t in common_mistake
+        doc_cell = f'<strong><a href="/docs/{slug}/">{esc(t)}</a></strong>' if strong else f'<a href="/docs/{slug}/">{esc(t)}</a>'
+        where_cell = f'<strong>{where}</strong>' if strong else where
+        body.append(f'<tr><td>{doc_cell}</td><td>{where_cell}</td></tr>')
+    body.append('</tbody></table></div>'
+                 '<p class="memo">굵게 표시한 항목은 정부24에서 찾다가 못 찾는 흔한 실수입니다.</p>'
+                 '</section>')
 
     body.append('<section class="panel"><h2>기관별로 보기</h2><ul class="doclist">')
     for inst in INSTITUTIONS:
@@ -393,6 +422,92 @@ def render_index():
         body.append('</ul></section>')
 
     body.append('</main>')
+    return PAGE_SHELL.format(head=head, body='\n'.join(body))
+
+
+TOOL_SCRIPT = """<script>
+function esc(s){ const d=document.createElement("div"); d.textContent=(s==null?"":String(s)); return d.innerHTML; }
+function row(k,v){ return v ? `<div class="kv"><span>${esc(k)}</span><b>${esc(v)}</b></div>` : ""; }
+document.querySelector("#f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector("button");
+  const r = document.querySelector("#result");
+  btn.disabled = true; r.textContent = "조회 중…";
+  try {
+    const res = await fetch("/api/biz", { method: "POST", body: new FormData(e.target) });
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      r.textContent = j.detail || "조회에 실패했습니다.";
+      return;
+    }
+    render(await res.json(), r);
+  } catch {
+    r.textContent = "네트워크 오류입니다. 잠시 후 다시 시도해 주세요.";
+  } finally {
+    btn.disabled = false;
+  }
+});
+function render(d, r) {
+  const nts = d.nts || {}, ftc = d.ftc || {};
+  let h = `<section class="panel"><h2>국세청</h2><p>${esc(nts.message || "")}</p>`
+        + row("상태", nts.b_stt) + row("과세유형", nts.tax_type) + row("폐업일", nts.end_dt)
+        + `</section>`;
+  h += `<section class="panel"><h2>공정위 통신판매사업자 등록</h2>`;
+  if (ftc.available) {
+    for (const rec of (ftc.records || [])) {
+      h += Object.entries(rec).filter(([, v]) => v).map(([k, v]) => row(k, v)).join("");
+    }
+  } else if (ftc.error) {
+    h += `<p class="memo">공정위 조회 중 일시 오류가 발생했습니다 — 국세청 결과만 표시합니다.</p>`;
+  } else {
+    h += `<p class="memo">공정위 통신판매사업자 등록 정보가 없습니다. `
+       + `통신판매업 신고 의무가 없는 오프라인 사업자 등은 정상적으로 등록이 없을 수 있습니다.</p>`;
+  }
+  h += `</section>`;
+  h += `<p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 사실만 보여드립니다. 최종 판단은 이용자 몫입니다.</p>`;
+  r.innerHTML = h;
+}
+</script>"""
+
+
+def render_tool_page():
+    title = "사업자번호 조회 — noai.kr"
+    description = "사업자등록번호 10자리로 국세청 등록상태와 공정위 통신판매사업자 등록 정보를 한 번에 확인합니다."
+    canonical = f"{BASE_URL}/biz/"
+    jsonld = f"""<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "사업자번호 조회",
+  "url": "{canonical}",
+  "applicationCategory": "UtilityApplication",
+  "isPartOf": {{"@type": "WebSite", "name": "noai.kr", "url": "{BASE_URL}/"}},
+  "offers": {{"@type": "Offer", "price": "0", "priceCurrency": "KRW"}}
+}}
+</script>"""
+    head = HEAD.format(title=esc(title), description=esc(description), canonical=canonical, jsonld=jsonld)
+
+    body = ['<main>']
+    body.append('<h1>사업자번호 조회</h1>')
+    body.append('<p class="sub">국세청 등록상태와 공정위 통신판매사업자 등록 정보를 사실 그대로 보여드립니다. '
+                 '위조·사기 여부를 판정하지 않습니다.</p>')
+    body.append('<section class="panel">')
+    body.append('<form id="f">')
+    body.append('<p><label>사업자등록번호 (10자리)<br>'
+                 '<input name="b_no" required inputmode="numeric" placeholder="123-45-67890" class="tin"></label></p>')
+    body.append('<details><summary>개업일자·대표자명으로 진위확인(선택)</summary>')
+    body.append('<p><label>개업일자<br><input name="start_dt" placeholder="20260101" class="tin"></label></p>')
+    body.append('<p><label>대표자명<br><input name="p_nm" placeholder="홍길동" class="tin"></label></p>')
+    body.append('<p class="memo">입력하신 대표자명은 조회 요청에만 사용되고 저장되지 않습니다.</p>')
+    body.append('</details>')
+    body.append('<p><button type="submit">조회하기</button></p>')
+    body.append('</form>')
+    body.append('<div id="result" aria-live="polite"></div>')
+    body.append('</section>')
+    body.append('<p class="back"><a href="/">← 홈으로</a></p>')
+    body.append('</main>')
+    body.append(TOOL_SCRIPT)
+
     return PAGE_SHELL.format(head=head, body='\n'.join(body))
 
 
@@ -444,13 +559,25 @@ ol,ul{margin:0;padding-left:20px;font-size:14px;line-height:1.8}
 .diff-table th,.diff-table td{border-bottom:1px solid var(--rule-soft);padding:8px 6px;text-align:left}
 .diff-table th{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);text-transform:uppercase}
 .diff-table a{color:var(--ink)}
+label{display:block;font-size:13.5px;font-weight:600;margin-bottom:14px}
+.tin{display:block;width:100%;margin-top:6px;padding:9px 10px;font-size:14px;
+  border:1px solid var(--rule);background:var(--paper);color:var(--ink);font-family:var(--sans)}
+button{font-size:13.5px;font-weight:600;color:#fff;background:var(--clear);
+  border:0;padding:9px 15px;cursor:pointer}
+button:disabled{opacity:.6;cursor:default}
+details{margin-bottom:14px}
+summary{font-size:13.5px;color:var(--ink-soft);cursor:pointer;margin-bottom:10px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;
+  border-bottom:1px solid var(--rule-soft);font-size:14px}
+.kv span{color:var(--ink-soft)}
+#result:not(:empty){margin-top:16px}
 """
 
 ROBOTS_TXT = "User-agent: *\nAllow: /\n\nSitemap: https://noai.kr/sitemap.xml\n"
 
 
 def render_sitemap():
-    urls = [f"{BASE_URL}/"]
+    urls = [f"{BASE_URL}/", f"{BASE_URL}/biz/"]
     urls += [f"{BASE_URL}/{inst['slug']}/" for inst in INSTITUTIONS]
     urls += [f"{BASE_URL}/docs/{SLUGS[e['type']]}/" for e in REGISTRY]
     body = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -475,6 +602,10 @@ def main():
     (DIST / "robots.txt").write_text(ROBOTS_TXT, encoding="utf-8")
     (DIST / "sitemap.xml").write_text(render_sitemap(), encoding="utf-8")
 
+    biz_dir = DIST / "biz"
+    biz_dir.mkdir(exist_ok=True)
+    (biz_dir / "index.html").write_text(render_tool_page(), encoding="utf-8")
+
     for inst in INSTITUTIONS:
         page_dir = DIST / inst["slug"]
         page_dir.mkdir(exist_ok=True)
@@ -487,7 +618,7 @@ def main():
         page_dir.mkdir(exist_ok=True)
         (page_dir / "index.html").write_text(render_doc_page(entry), encoding="utf-8")
 
-    print(f"생성 완료: {DIST} — 홈 1 + 기관 {len(INSTITUTIONS)} + 문서 {len(REGISTRY)} + style.css/robots.txt/sitemap.xml")
+    print(f"생성 완료: {DIST} — 홈 1 + biz 1 + 기관 {len(INSTITUTIONS)} + 문서 {len(REGISTRY)} + style.css/robots.txt/sitemap.xml")
 
 
 if __name__ == "__main__":
