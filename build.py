@@ -90,6 +90,7 @@ HEAD = """<meta charset="utf-8">
 FOOTER = f"""<footer>
 <p>운영: 아파트투미 · 사업자등록번호 317-74-00501 · 대표 김주홍</p>
 <p>문의: contact@noai.kr</p>
+<p><a href="/biz/">사업자번호 조회</a> · <a href="/pdf/">PDF 편집 흔적 찾기</a></p>
 <p><a href="/privacy/">개인정보처리방침</a> · <a href="/terms/">이용약관</a></p>
 <p>최종 업데이트: {BUILD_DATE}</p>
 <p>© {BUILD_DATE[:4]} noai.kr</p>
@@ -319,6 +320,9 @@ JUMIN_BODY = """
 
 DOC_OVERRIDES = {"주민등록등초본": JUMIN_BODY}
 
+# PDF로 받는 경우가 많은 문서 — /pdf/ 로 안내한다 (PDF_TOOL_TASK.md 3절).
+PDF_HINT_DOCS = {"사업자등록증명·휴폐업사실증명", "납세증명·소득금액증명", "등기사항증명서"}
+
 
 def render_institution_page(inst):
     slug = inst["slug"]
@@ -403,6 +407,9 @@ def render_doc_page(entry):
     parts.append('<section class="panel"><h2>유효기간</h2>')
     parts.append(f'<p>{esc(entry["validity"])}</p></section>')
 
+    if doc_type in PDF_HINT_DOCS:
+        parts.append('<p class="memo">PDF로 받으셨다면 → <a href="/pdf/">편집 흔적 확인</a></p>')
+
     if inst_slug:
         parts.append(f'<p class="back"><a href="/{inst_slug}/">→ 절차 전체 보기</a> · <a href="/">전체 문서유형 목록으로</a></p>')
     else:
@@ -446,9 +453,14 @@ def render_index():
                  '19개 문서유형별로 확인처와 절차를 정리했습니다.</p>')
     body.append('<p class="scope">noai.kr은 <b>위조 여부를 판정하지 않습니다</b> — 확인하는 방법만 안내합니다.</p>')
 
-    body.append('<section class="panel lead"><h2>사업자번호로 바로 확인하기</h2>'
-                 '<p>거래처가 폐업했는지, 통신판매업 신고를 했는지 번호 10자리만 넣으면 즉시 확인됩니다.</p>'
-                 '<a class="cta" href="/biz/">사업자번호 조회 →</a></section>')
+    body.append('<section class="panel lead"><h2>바로 확인할 수 있는 것</h2>'
+                 '<div class="tool"><b>사업자번호 조회</b>'
+                 '<p>거래처가 폐업했는지, 통신판매업 신고를 했는지</p>'
+                 '<a class="cta" href="/biz/">조회하기 →</a></div>'
+                 '<div class="tool"><b>PDF 편집 흔적 찾기</b>'
+                 '<p>받은 PDF에 손댄 기록이 남아 있는지</p>'
+                 '<a class="cta" href="/pdf/">확인하기 →</a></div>'
+                 '</section>')
 
     inst_by_slug = {inst["slug"]: inst for inst in INSTITUTIONS}
     common_mistake = {"사업자등록증명·휴폐업사실증명"}
@@ -627,6 +639,10 @@ h3{font-family:var(--serif);font-weight:600;font-size:15.5px;margin:18px 0 6px}
 .panel>p:last-child,.panel>ul:last-child{margin-bottom:0}
 .issuer{font-family:var(--serif);font-weight:600;font-size:19px;line-height:1.4;margin:0 0 12px}
 
+.tool b{display:block;font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:4px}
+.tool p{margin:0 0 12px}
+.tool+.tool{margin-top:20px;padding-top:20px;border-top:1px solid var(--rule-soft)}
+
 .cta,button{display:inline-flex;align-items:center;justify-content:center;gap:8px;
   min-height:48px;padding:0 18px;font-family:var(--sans);font-size:14.5px;font-weight:600;
   color:#fff;background:var(--clear);border:0;text-decoration:none;cursor:pointer}
@@ -725,6 +741,7 @@ PRIVACY_BODY = """
 <li>대표자명 (선택)</li>
 </ul>
 <p class="memo">이 외에 어떤 개인정보도 수집하지 않습니다. 회원가입이 없으며, 문서 파일을 업로드받지 않습니다.</p>
+<p class="memo">PDF 편집 흔적 찾기(/pdf/)는 파일을 서버로 전송하지 않습니다. 분석은 이용자의 브라우저 안에서만 이루어지며, 파일 내용은 어디에도 저장되거나 전달되지 않습니다.</p>
 </section>
 
 <section class="panel">
@@ -817,7 +834,7 @@ def render_terms_page():
 
 
 def render_sitemap():
-    urls = [f"{BASE_URL}/", f"{BASE_URL}/biz/", f"{BASE_URL}/privacy/", f"{BASE_URL}/terms/"]
+    urls = [f"{BASE_URL}/", f"{BASE_URL}/biz/", f"{BASE_URL}/pdf/", f"{BASE_URL}/privacy/", f"{BASE_URL}/terms/"]
     urls += [f"{BASE_URL}/{inst['slug']}/" for inst in INSTITUTIONS]
     urls += [f"{BASE_URL}/docs/{SLUGS[e['type']]}/" for e in REGISTRY]
     body = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -853,6 +870,11 @@ def main():
     biz_dir = DIST / "biz"
     biz_dir.mkdir(exist_ok=True)
     (biz_dir / "index.html").write_text(render_tool_page(), encoding="utf-8")
+
+    # pdf.html은 registry 데이터로 생성되지 않는 완성된 정적 파일 — 그대로 복사한다(PDF_TOOL_TASK.md 1절).
+    pdf_dir = DIST / "pdf"
+    pdf_dir.mkdir(exist_ok=True)
+    shutil.copy(STATIC / "pdf.html", pdf_dir / "index.html")
 
     privacy_dir = DIST / "privacy"
     privacy_dir.mkdir(exist_ok=True)
