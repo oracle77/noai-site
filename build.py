@@ -224,7 +224,7 @@ INSTITUTIONS = [
     {"slug": "gov24", "name": "정부24 발급문서 진위확인", "short": "정부24",
      "url": "https://www.gov.kr/mw/EgovPageLink.do?link=confirm/AA040_confirm_id",
      "docs": ["주민등록등초본", "건축물대장", "토지대장·지적도", "자동차등록원부",
-              "출입국사실증명·병적증명서", "인감증명서"],
+              "출입국사실증명·병적증명서"],
      "body": GOV24_BODY},
     {"slug": "hometax", "name": "홈택스 민원증명 원본확인", "short": "홈택스",
      "url": "https://www.hometax.go.kr",
@@ -384,6 +384,11 @@ def render_doc_page(entry):
     if inst_slug:
         parts.append(f'<p class="issuer">{esc(entry["issuer"])}</p>')
         parts.append(f'<a class="cta" href="/{inst_slug}/">절차 보기 →</a>')
+    elif entry["url"]:
+        # 인감증명서처럼 기관 허브 페이지는 없지만 실제 조회처(URL)는 있는 경우.
+        # /gov24/ 등 무관한 허브로 보내지 않고 실제 발급처로 직접 연결한다 (TRUST_TASK.md F).
+        parts.append(f'<p class="issuer">{esc(entry["issuer"])}</p>')
+        parts.append(f'<a class="cta" href="{esc(entry["url"])}" target="_blank" rel="noopener">{esc(entry["issuer"])} 바로가기 →</a>')
     else:
         parts.append('<div class="nosource">조회처 없음 (사문서) — 공적으로 진위를 조회할 방법이 없습니다.</div>')
     parts.append('</section>')
@@ -445,7 +450,7 @@ def render_index():
                  '<p>거래처가 폐업했는지, 통신판매업 신고를 했는지 번호 10자리만 넣으면 즉시 확인됩니다.</p>'
                  '<a class="cta" href="/biz/">사업자번호 조회 →</a></section>')
 
-    inst_name = {inst["slug"]: inst["name"] for inst in INSTITUTIONS}
+    inst_by_slug = {inst["slug"]: inst for inst in INSTITUTIONS}
     common_mistake = {"사업자등록증명·휴폐업사실증명"}
     body.append('<section class="panel"><h2>내 서류는 어디서 확인하나</h2>'
                  '<div class="table-wrap"><table class="diff-table">'
@@ -454,7 +459,17 @@ def render_index():
         t = e["type"]
         slug = SLUGS[t]
         inst_slug = DOC_INST.get(t)
-        where = f'<a href="/{inst_slug}/">{esc(inst_name[inst_slug])}</a>' if inst_slug else "조회처 없음"
+        if inst_slug:
+            inst = inst_by_slug[inst_slug]
+            # 절차 안내(내부 허브) + 바로가기(외부 직행, TRUST_TASK.md G) 두 링크를 함께 둔다.
+            where = (f'<a href="/{inst_slug}/">{esc(inst["name"])}</a> '
+                     f'<a class="ext" href="{esc(inst["url"])}" target="_blank" rel="noopener" title="바로가기">↗</a>')
+        elif e["url"]:
+            # 인감증명서처럼 허브 페이지는 없지만 조회처는 있는 경우 — 문서 페이지로 직접 연결(TRUST_TASK.md F).
+            where = (f'<a href="/docs/{slug}/">{esc(e["issuer"])}</a> '
+                     f'<a class="ext" href="{esc(e["url"])}" target="_blank" rel="noopener" title="바로가기">↗</a>')
+        else:
+            where = "조회처 없음"
         strong = t in common_mistake
         doc_cell = f'<strong><a href="/docs/{slug}/">{esc(t)}</a></strong>' if strong else f'<a href="/docs/{slug}/">{esc(t)}</a>'
         where_cell = f'<strong>{where}</strong>' if strong else where
@@ -662,6 +677,8 @@ footer a:hover{color:var(--ink)}
 .diff-table tr:last-child td{border-bottom:0}
 .diff-table a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
 .diff-table a:hover{border-color:var(--stamp);color:var(--stamp)}
+.diff-table a.ext{border-bottom:0;color:var(--ink-soft);margin-left:2px}
+.diff-table a.ext:hover{color:var(--stamp)}
 @media (max-width:600px){
   .diff-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
   .diff-table tr{display:block;padding:12px 0;border-bottom:1px solid var(--rule)}
@@ -815,8 +832,15 @@ def main():
     assert len(REGISTRY) == 19, f"REGISTRY 길이가 19가 아님: {len(REGISTRY)}"
     assert set(SLUGS.keys()) == {e["type"] for e in REGISTRY}, "SLUGS가 REGISTRY type과 불일치"
     assert len(set(SLUGS.values())) == 19, "슬러그 중복 발견"
+    # 문서 19종 = 기관 허브에 속한 문서 + 허브 없이 URL만 있는 문서(예: 인감증명서) + 조회처 자체가 없는 사문서.
     doc_count = sum(len(inst["docs"]) for inst in INSTITUTIONS)
-    assert doc_count + 2 == 19, f"기관별 문서 수({doc_count})+사문서(2) != 19"
+    unmapped = [e for e in REGISTRY if not DOC_INST.get(e["type"])]
+    url_only = sum(1 for e in unmapped if e["url"])
+    no_source = sum(1 for e in unmapped if not e["url"])
+    assert no_source == 2, f"사문서(조회처 없음) 개수가 2가 아님: {no_source}"
+    assert doc_count + url_only + no_source == 19, (
+        f"기관별 문서 수({doc_count})+URL만 있는 문서({url_only})+사문서({no_source}) != 19"
+    )
 
     shutil.rmtree(DIST, ignore_errors=True)  # 이전 한글 슬러그 산출물 잔재 제거
     DIST.mkdir(exist_ok=True)
