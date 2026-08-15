@@ -137,6 +137,40 @@ def breadcrumb_jsonld(name, canonical):
 </script>"""
 
 
+def howto_jsonld(name, steps):
+    step_items = ",\n".join(
+        f'    {{"@type": "HowToStep", "position": {i}, "text": "{esc(s)}"}}'
+        for i, s in enumerate(steps, 1)
+    )
+    return f"""<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "{esc(name)}",
+  "step": [
+{step_items}
+  ]
+}}
+</script>"""
+
+
+def faq_jsonld(qa_pairs):
+    items = ",\n".join(
+        f'''    {{"@type": "Question", "name": "{esc(q)}",
+     "acceptedAnswer": {{"@type": "Answer", "text": "{esc(a)}"}}}}'''
+        for q, a in qa_pairs
+    )
+    return f"""<script type="application/ld+json">
+{{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+{items}
+  ]
+}}
+</script>"""
+
+
 # ── 기관 페이지 (절차 본문, 8개) ──────────────────────────────────────────
 # docs: 이 기관 페이지가 다루는 REGISTRY "type" 목록. body: 손으로 쓴 본문(HTML, 없으면
 # 문서 링크만 있는 생성 폴백). 이번 회차는 gov24만 본문 완성 — 나머지 7개는 폴백.
@@ -320,7 +354,206 @@ JUMIN_BODY = """
 <p class="back"><a href="/gov24/">→ 정부24 조회 절차 전체 보기</a> · <a href="/">전체 문서유형 목록으로</a></p>
 """
 
-DOC_OVERRIDES = {"주민등록등초본": JUMIN_BODY}
+GEONCHUKMUL_BODY = """
+<h1>건축물대장 진위확인</h1>
+
+<section class="panel lead">
+<h2>요약</h2>
+<p class="issuer">정부24 인터넷발급문서 진위확인</p>
+<div class="kv"><span>발급확인번호</span><b>상단 · 자릿수 미확인</b></div>
+<div class="kv"><span>유효기간</span><b>발급일로부터 90일</b></div>
+<p style="margin:16px 0 0"><a class="cta" href="/gov24/">절차 전체 보기 →</a></p>
+</section>
+
+<section class="panel">
+<h2>확인 절차</h2>
+<ol>
+<li>문서에 표기된 문서확인번호를 확인합니다.</li>
+<li>정부24 인터넷발급문서 진위확인에 입력합니다.</li>
+<li>면적·용도·소유자 표기가 화면 내용과 일치하는지 봅니다.</li>
+</ol>
+</section>
+
+<section class="panel">
+<h2>이 문서만의 주의사항</h2>
+<ul>
+<li>가로형 서식이라 진위확인 바코드는 4단으로 나뉘어 있습니다.</li>
+<li>세움터(cloud.eais.go.kr)에서 발급받은 경우 서식 <b>상단</b>의 발급확인번호로 확인합니다.</li>
+</ul>
+</section>
+
+<div class="unver">발급확인번호의 정확한 자릿수·구분 형식은 아직 실물로 확인하지 못했습니다. 서식 개정으로 달라질 수 있습니다.</div>
+
+<section class="panel">
+<h2>조회가 안 될 때</h2>
+<div class="kv"><span>90일 지난 발급분</span><b>재발급 요청</b></div>
+<p class="memo">조회가 안 되는 것 자체가 위조를 뜻하지는 않습니다. 판단이 필요하면
+발급기관에 문의하십시오.</p>
+</section>
+
+<p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 확인 절차를 안내할 뿐입니다.</p>
+<p class="back"><a href="/gov24/">→ 정부24 조회 절차 전체 보기</a> · <a href="/">전체 문서유형 목록으로</a></p>
+"""
+
+DEUNGGI_BODY = """
+<h1>등기사항증명서 진위확인</h1>
+
+<section class="panel lead">
+<h2>요약</h2>
+<p class="issuer">인터넷등기소</p>
+<div class="kv"><span>확인 방법</span><b>번호 대조가 아니라 직접 재발급</b></div>
+<div class="kv"><span>비용</span><b>700원</b></div>
+<p style="margin:16px 0 0"><a class="cta" href="http://www.iros.go.kr" target="_blank" rel="noopener">인터넷등기소 바로가기 →</a></p>
+</section>
+
+<section class="panel">
+<h2>확인 절차</h2>
+<ol>
+<li>받은 서류를 믿지 말고 본인이 직접 재발급받으세요. 700원입니다.</li>
+<li>부동산 소재지로 조회하면 누구나 열람할 수 있습니다.</li>
+<li>소유자·근저당·가압류 항목을 한 줄씩 대조합니다.</li>
+</ol>
+</section>
+
+<section class="panel">
+<h2>왜 번호 대조가 아니라 재발급인가</h2>
+<p class="memo">발급확인번호는 출력물 하단에 2D 바코드와 함께 인쇄되지만, 이 문서는 위조 피해가
+가장 큰 서류로 꼽힙니다. 번호를 입력해 대조하는 방식보다, 부동산 소재지로 직접
+재발급받아 소유자·근저당·가압류 항목을 한 줄씩 비교하는 편이 확실합니다.</p>
+</section>
+
+<section class="panel">
+<h2>이 문서만의 주의사항</h2>
+<ul>
+<li>동일 문서 재출력은 최초 발급 후 <b>1시간 이내</b>로 제한됩니다.</li>
+<li>발급 여부 자체의 확인은 3개월 이후까지도 가능합니다.</li>
+</ul>
+</section>
+
+<p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 확인 절차를 안내할 뿐입니다.</p>
+<p class="back"><a href="/iros/">→ 인터넷등기소 안내 전체 보기</a> · <a href="/">전체 문서유형 목록으로</a></p>
+"""
+
+GAJOK_BODY = """
+<h1>가족관계증명서 진위확인</h1>
+
+<section class="panel lead">
+<h2>요약</h2>
+<p class="issuer">대법원 전자가족관계등록시스템</p>
+<div class="kv"><span>발급번호</span><b>하단 · 16자리</b></div>
+<div class="kv"><span>유효기간</span><b>확인되지 않음</b></div>
+<p style="margin:16px 0 0"><a class="cta" href="https://efamily.scourt.go.kr" target="_blank" rel="noopener">전자가족관계등록시스템 바로가기 →</a></p>
+</section>
+
+<section class="panel">
+<h2>확인 절차</h2>
+<ol>
+<li>문서 하단의 발급번호(16자리)를 확인합니다.</li>
+<li>전자가족관계등록시스템 &gt; 증명서 진위확인에 입력합니다.</li>
+<li>본인 것이라면 직접 재발급받아 대조하는 편이 확실합니다.</li>
+</ol>
+</section>
+
+<section class="panel">
+<h2>헷갈리기 쉬운 것</h2>
+<ul>
+<li>정부24가 아니라 대법원 전자가족관계등록시스템에서 확인합니다.</li>
+<li>번호 위치와 자릿수가 주민등록등본(상단·17자리)과 다릅니다 — 하단·16자리입니다.</li>
+</ul>
+</section>
+
+<div class="unver">이 문서의 유효(조회 가능) 기간은 공식 자료로 확인하지 못했습니다.</div>
+
+<p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 확인 절차를 안내할 뿐입니다.</p>
+<p class="back"><a href="/efamily/">→ 전자가족관계등록시스템 안내 전체 보기</a> · <a href="/">전체 문서유형 목록으로</a></p>
+"""
+
+SAEOPJA_BODY = """
+<h1>사업자등록증명 진위확인</h1>
+
+<section class="panel lead">
+<h2>요약</h2>
+<p class="issuer">국세청 홈택스 민원증명 원본확인</p>
+<div class="kv"><span>발급번호</span><b>좌측 상단 · 14자리 (4-3-4-3)</b></div>
+<div class="kv"><span>유효기간</span><b>발급일로부터 90일</b></div>
+<p style="margin:16px 0 0"><a class="cta" href="https://www.hometax.go.kr" target="_blank" rel="noopener">홈택스 바로가기 →</a></p>
+</section>
+
+<section class="panel">
+<h2>확인 절차</h2>
+<ol>
+<li>문서 좌측 상단의 발급번호를 확인합니다. 14자리이며 4-3-4-3 형식입니다.</li>
+<li>홈택스 &gt; 민원증명(증명발급) &gt; 민원증명 원본확인으로 이동합니다.</li>
+<li>발급번호와 납세자구분(사업자등록번호 또는 주민등록번호)을 입력합니다.</li>
+</ol>
+</section>
+
+<section class="panel">
+<h2>헷갈리기 쉬운 것</h2>
+<ul>
+<li><b>사업자등록번호를 넣는 게 아니라 발급번호를 넣습니다.</b> 문서에 둘 다 있어
+헷갈리기 가장 쉬운 지점입니다. 실측 예시: 발급번호 <code>5659-969-8744-126</code>
+(좌측 상단, 4-3-4-3, 14자리).</li>
+<li>국세 민원증명은 정부24가 아니라 홈택스에서 확인합니다.</li>
+<li>주민번호가 가려진 문서는 뒷자리에 <code>*******</code>를 입력합니다.</li>
+</ul>
+</section>
+
+<section class="panel">
+<h2>사업자 상태도 함께 확인하기</h2>
+<p class="memo">거래처가 휴업·폐업 상태인지는 국세청 공공데이터포털 오픈API로 번호만 넣으면 바로 조회됩니다.</p>
+<p style="margin:12px 0 0"><a class="cta" href="/biz/">사업자번호 조회 →</a></p>
+</section>
+
+<p class="memo">PDF로 받으셨다면 → <a href="/pdf/">편집 흔적 확인</a></p>
+
+<p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 확인 절차를 안내할 뿐입니다.</p>
+<p class="back"><a href="/hometax/">→ 홈택스 안내 전체 보기</a> · <a href="/">전체 문서유형 목록으로</a></p>
+"""
+
+DOC_OVERRIDES = {
+    "주민등록등초본": JUMIN_BODY,
+    "건축물대장": GEONCHUKMUL_BODY,
+    "등기사항증명서": DEUNGGI_BODY,
+    "가족관계증명서": GAJOK_BODY,
+    "사업자등록증명·휴폐업사실증명": SAEOPJA_BODY,
+}
+
+# 손으로 쓴 5개 문서 페이지의 "조회가 안 될 때"/"헷갈리기 쉬운 것" 내용을
+# FAQPage 구조화 데이터로도 노출한다. 검증된 사실을 질문·답 형태로 재구성한 것일 뿐
+# 새로운 주장은 추가하지 않는다.
+DOC_FAQ = {
+    "주민등록등초본": [
+        ("발급일로부터 90일이 지난 등본도 조회할 수 있나요?",
+         "아니요. 90일이 지나면 조회 기간이 만료되어 재발급을 요청해야 합니다."),
+        ("시군구·읍면동 주민센터 방문 발급분도 같은 방법으로 확인하나요?",
+         "아니요. 방문 발급분은 정부24의 별도 메뉴에서 확인해야 합니다."),
+    ],
+    "건축물대장": [
+        ("건축물대장 발급확인번호는 어디에 있나요?",
+         "서식 상단에 있습니다. 세움터(cloud.eais.go.kr) 발급분도 마찬가지입니다."),
+        ("정확한 자릿수를 알 수 있나요?",
+         "아직 실물로 확인하지 못했습니다. 서식 개정으로 달라질 수 있어 추정치를 안내하지 않습니다."),
+    ],
+    "등기사항증명서": [
+        ("등기사항증명서는 문서확인번호를 입력해서 진위를 확인하나요?",
+         "번호 대조보다 부동산 소재지로 직접 재발급받아 소유자·근저당 등 항목을 대조하는 방법이 권장됩니다."),
+        ("발급받은 등기사항증명서를 다시 출력할 수 있나요?",
+         "네, 다만 동일 문서 재출력은 최초 발급 후 1시간 이내로 제한됩니다."),
+    ],
+    "가족관계증명서": [
+        ("가족관계증명서도 정부24에서 확인하나요?",
+         "아니요. 대법원 전자가족관계등록시스템(efamily.scourt.go.kr)에서 확인합니다."),
+        ("가족관계증명서의 발급번호는 어디에 몇 자리로 있나요?",
+         "문서 하단에 16자리로 인쇄되어 있습니다. 주민등록등본(상단·17자리)과 다릅니다."),
+    ],
+    "사업자등록증명·휴폐업사실증명": [
+        ("사업자등록증명 확인번호에 사업자등록번호를 입력하면 되나요?",
+         "아니요. 사업자등록번호가 아니라 문서에 별도로 인쇄된 14자리 발급번호(4-3-4-3 형식)를 입력해야 합니다."),
+        ("사업자등록증명은 정부24에서 확인하나요?",
+         "아니요. 국세청 홈택스에서 확인합니다. 국세 민원증명을 정부24에서 찾으려는 실수가 가장 흔합니다."),
+    ],
+}
 
 # PDF로 받는 경우가 많은 문서 — /pdf/ 로 안내한다 (PDF_TOOL_TASK.md 3절).
 # 등기사항증명서는 제외 — 편집 흔적 확인이 아니라 직접 재발급이 정답.
@@ -353,14 +586,15 @@ def render_institution_page(inst):
             '<section class="panel"><h2>확인 가능한 문서</h2>',
             f'<ul class="doclist">{items}</ul></section>',
         ]
+        # 문서별 전체 절차는 문서 페이지가 담당한다(steps 렌더링은 render_doc_page 쪽에만 둔다) —
+        # 여기서 다시 나열하면 문서가 여러 개인 기관(홈택스 등)에서 허브·문서 콘텐츠가 중복된다.
         for d in inst["docs"]:
             e = by_type[d]
-            parts.append(f'<section class="panel"><h2>{esc(d)} 조회 절차</h2>')
+            parts.append(f'<section class="panel"><h2>{esc(d)}</h2>')
             if not e["verified"]:
                 parts.append(f'<div class="unver">{esc(DISCLAIMER)}</div>')
-            if e["steps"]:
-                parts.append('<ol>' + ''.join(f'<li>{esc(s)}</li>' for s in e["steps"]) + '</ol>')
             parts.append(f'<p class="memo">유효기간: {esc(e["validity"])}</p>')
+            parts.append(f'<p class="back"><a href="/docs/{SLUGS[d]}/">전체 절차 보기 →</a></p>')
             parts.append('</section>')
         parts.append('<p class="back"><a href="/">← 전체 문서유형 목록으로</a></p>')
         body = '\n'.join(parts)
@@ -376,9 +610,16 @@ def render_doc_page(entry):
     # 검색 스니펫이 너무 짧게 잘리지 않도록 발급처+첫 단계까지 포함한다(SEO 점검, entry["steps"][0]만 쓰면 20~40자로 부실했음).
     first_step = entry["steps"][0] if entry["steps"] else ""
     description = f"{doc_type} 진위확인: {entry['issuer']}. {first_step}".strip()
+
+    jsonld = breadcrumb_jsonld(f"{doc_type} 진위확인", canonical)
+    if entry["steps"]:
+        jsonld += "\n" + howto_jsonld(f"{doc_type} 진위확인 절차", entry["steps"])
+    if doc_type in DOC_FAQ:
+        jsonld += "\n" + faq_jsonld(DOC_FAQ[doc_type])
+
     head = HEAD.format(
         title=esc(title), description=esc(description[:150]),
-        canonical=canonical, jsonld=breadcrumb_jsonld(f"{doc_type} 진위확인", canonical),
+        canonical=canonical, jsonld=jsonld,
     )
 
     crumb = esc(f"문서 · {doc_type}")
@@ -405,6 +646,12 @@ def render_doc_page(entry):
 
     if not entry["verified"]:
         parts.append(f'<div class="unver">{esc(DISCLAIMER)}</div>')
+
+    if entry["steps"]:
+        # 이전에는 여기 없이 통째로 빠져 있었음(SEO 점검: 문서 페이지가 너무 얇은 핵심 원인).
+        parts.append('<section class="panel"><h2>확인 절차</h2>')
+        parts.append('<ol>' + ''.join(f'<li>{esc(s)}</li>' for s in entry["steps"]) + '</ol>')
+        parts.append('</section>')
 
     if entry["note"]:
         parts.append('<section class="panel"><h2>이 문서만의 주의사항</h2>')
@@ -851,6 +1098,23 @@ def render_sitemap():
     return '\n'.join(body) + '\n'
 
 
+def render_404():
+    # Cloudflare Pages는 배포 루트에 정확히 이 파일명(404.html)이 있으면 실제 HTTP 404로 서빙한다.
+    # 지금까지 이 파일이 없어서 존재하지 않는 경로도 전부 홈페이지를 200으로 반환하고 있었다(소프트 404, SEO 점검).
+    canonical = f"{BASE_URL}/404"
+    title = "페이지를 찾을 수 없습니다 — noai.kr"
+    description = "요청하신 페이지를 찾을 수 없습니다."
+    head = HEAD.format(
+        title=esc(title), description=esc(description), canonical=canonical, jsonld="",
+    )
+    body = (
+        '<main><h1>페이지를 찾을 수 없습니다</h1>'
+        '<p class="sub">주소가 바뀌었거나 잘못 입력됐을 수 있습니다.</p>'
+        '<p class="back"><a href="/">← 홈으로</a></p></main>'
+    )
+    return PAGE_SHELL.format(head=head, body=body, crumb="404", footer=FOOTER)
+
+
 def main():
     assert len(REGISTRY) == 19, f"REGISTRY 길이가 19가 아님: {len(REGISTRY)}"
     assert set(SLUGS.keys()) == {e["type"] for e in REGISTRY}, "SLUGS가 REGISTRY type과 불일치"
@@ -868,6 +1132,7 @@ def main():
     shutil.rmtree(DIST, ignore_errors=True)  # 이전 한글 슬러그 산출물 잔재 제거
     DIST.mkdir(exist_ok=True)
     (DIST / "index.html").write_text(render_index(), encoding="utf-8")
+    (DIST / "404.html").write_text(render_404(), encoding="utf-8")
     (DIST / "style.css").write_text(STYLE_CSS, encoding="utf-8")
     (DIST / "robots.txt").write_text(ROBOTS_TXT, encoding="utf-8")
     (DIST / "sitemap.xml").write_text(render_sitemap(), encoding="utf-8")
