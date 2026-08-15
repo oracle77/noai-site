@@ -1,8 +1,8 @@
-"""registry.py의 19개 문서유형 데이터를 정적 HTML 사이트로 생성한다.
+"""registry.py의 20개 문서유형 데이터를 정적 HTML 사이트로 생성한다.
 
 실행:  python site/build.py   (결과: site/dist/)
 
-구조(STRUCTURE_TASK.md): 기관 페이지(절차 본문, 8개) + 문서 페이지(검색 진입점, 19개, 짧게).
+구조(STRUCTURE_TASK.md): 기관 페이지(절차 본문, 8개) + 문서 페이지(검색 진입점, 20개, 짧게).
 같은 절차(예: 정부24)를 문서 페이지마다 반복하지 않고 기관 페이지 하나에만 쓴다.
 
 데이터 소스는 engine/registry.py의 REGISTRY를 직접 import한다 — 마크다운/JSON으로
@@ -27,13 +27,14 @@ BASE_URL = "https://noai.kr"
 BUILD_DATE = datetime.date.today().isoformat()  # TRUST_TASK.md:76 — 하드코딩 대신 빌드 시점 자동 반영
 
 # 문서명 → 영문 슬러그 (STRUCTURE_TASK.md:180). 한글 URL은 퍼센트인코딩으로 깨지므로
-# 색인 전인 지금 전환한다. 19건 전부 유니크함은 main()의 assert로 보장.
+# 색인 전인 지금 전환한다. 20건 전부 유니크함은 main()의 assert로 보장.
 SLUGS = {
     "주민등록등초본": "jumin-deungbon",
     "건축물대장": "geonchukmul-daejang",
     "토지대장·지적도": "toji-daejang",
     "자동차등록원부": "jadongcha-wonbu",
-    "출입국사실증명·병적증명서": "chulipguk-byeongjeok",
+    "출입국사실증명": "chulipguk-sasil",
+    "병적증명서": "byeongjeok",
     "인감증명서": "ingam",
     "사업자등록증명·휴폐업사실증명": "saeopja-jeungmyeong",
     "납세증명·소득금액증명": "napse-sodeuk",
@@ -206,7 +207,8 @@ GOV24_BODY = """
 <tr><td data-label="문서"><a href="/docs/geonchukmul-daejang/">건축물대장</a></td><td data-label="위치">상단</td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드">4단 (가로형)</td></tr>
 <tr><td data-label="문서"><a href="/docs/toji-daejang/">토지대장·지적도</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
 <tr><td data-label="문서"><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
-<tr><td data-label="문서"><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
+<tr><td data-label="문서"><a href="/docs/chulipguk-sasil/">출입국사실증명</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
+<tr><td data-label="문서"><a href="/docs/byeongjeok/">병적증명서</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
 </tbody>
 </table></div>
 <p class="memo">"미확인"은 실물로 확인하지 못했다는 뜻입니다. 서식 개정으로 달라질 수 있어
@@ -247,7 +249,8 @@ GOV24_BODY = """
 <li><a href="/docs/geonchukmul-daejang/">건축물대장</a></li>
 <li><a href="/docs/toji-daejang/">토지대장·지적도</a></li>
 <li><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></li>
-<li><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></li>
+<li><a href="/docs/chulipguk-sasil/">출입국사실증명</a></li>
+<li><a href="/docs/byeongjeok/">병적증명서</a></li>
 </ul>
 <p class="memo">인감증명서 → <a href="/docs/ingam/">별도 메뉴</a> · 국세 서류 → <a href="/hometax/">홈택스</a></p>
 </section>
@@ -261,7 +264,7 @@ INSTITUTIONS = [
     {"slug": "gov24", "name": "정부24 발급문서 진위확인", "short": "정부24",
      "url": "https://www.gov.kr/mw/EgovPageLink.do?link=confirm/AA040_confirm_id",
      "docs": ["주민등록등초본", "건축물대장", "토지대장·지적도", "자동차등록원부",
-              "출입국사실증명·병적증명서"],
+              "출입국사실증명", "병적증명서"],
      "body": GOV24_BODY},
     {"slug": "hometax", "name": "홈택스 민원증명 원본확인", "short": "홈택스",
      "url": "https://www.hometax.go.kr",
@@ -673,7 +676,7 @@ def render_doc_page(entry):
 
 CATEGORIES = [
     ("정부24", ["주민등록등초본", "건축물대장", "토지대장·지적도", "자동차등록원부",
-               "출입국사실증명·병적증명서", "인감증명서"]),
+               "출입국사실증명", "병적증명서", "인감증명서"]),
     ("국세청(홈택스)", ["사업자등록증명·휴폐업사실증명", "납세증명·소득금액증명", "세금계산서"]),
     ("지방세(위택스)", ["지방세 납세·과세증명"]),
     ("등기", ["등기사항증명서"]),
@@ -686,7 +689,7 @@ CATEGORIES = [
 
 def render_index():
     title = "noai.kr — 공문서 진위확인 안내"
-    description = "주민등록등본부터 세금계산서까지, 19개 문서유형별로 어디서 진위를 확인하는지 안내합니다. 위조 판정 도구가 아닙니다."
+    description = "주민등록등본부터 세금계산서까지, 20개 문서유형별로 어디서 진위를 확인하는지 안내합니다. 위조 판정 도구가 아닙니다."
     jsonld = f"""<script type="application/ld+json">
 {{
   "@context": "https://schema.org",
@@ -703,7 +706,7 @@ def render_index():
     body = ['<main>']
     body.append('<h1 class="tagline">받은 서류, 어디서 확인하는지 아세요?</h1>')
     body.append('<p class="sub">문서마다 진위를 확인하는 곳이 다릅니다. '
-                 '19개 문서유형별로 확인처와 절차를 정리했습니다.</p>')
+                 '20개 문서유형별로 확인처와 절차를 정리했습니다.</p>')
     body.append('<p class="scope">noai.kr은 <b>위조 여부를 판정하지 않습니다</b> — 확인하는 방법만 안내합니다.</p>')
 
     body.append('<section class="panel lead"><h2>바로 확인할 수 있는 것</h2>'
@@ -1116,17 +1119,18 @@ def render_404():
 
 
 def main():
-    assert len(REGISTRY) == 19, f"REGISTRY 길이가 19가 아님: {len(REGISTRY)}"
+    assert len(REGISTRY) == 20, f"REGISTRY 길이가 20이 아님: {len(REGISTRY)}"
     assert set(SLUGS.keys()) == {e["type"] for e in REGISTRY}, "SLUGS가 REGISTRY type과 불일치"
-    assert len(set(SLUGS.values())) == 19, "슬러그 중복 발견"
-    # 문서 19종 = 기관 허브에 속한 문서 + 허브 없이 URL만 있는 문서(예: 인감증명서) + 조회처 자체가 없는 사문서.
+    assert len(set(SLUGS.values())) == 20, "슬러그 중복 발견"
+    # 문서 20종(출입국사실증명·병적증명서 분리 후) = 기관 허브에 속한 문서 + 허브 없이
+    # URL만 있는 문서(예: 인감증명서) + 조회처 자체가 없는 사문서.
     doc_count = sum(len(inst["docs"]) for inst in INSTITUTIONS)
     unmapped = [e for e in REGISTRY if not DOC_INST.get(e["type"])]
     url_only = sum(1 for e in unmapped if e["url"])
     no_source = sum(1 for e in unmapped if not e["url"])
     assert no_source == 2, f"사문서(조회처 없음) 개수가 2가 아님: {no_source}"
-    assert doc_count + url_only + no_source == 19, (
-        f"기관별 문서 수({doc_count})+URL만 있는 문서({url_only})+사문서({no_source}) != 19"
+    assert doc_count + url_only + no_source == 20, (
+        f"기관별 문서 수({doc_count})+URL만 있는 문서({url_only})+사문서({no_source}) != 20"
     )
 
     shutil.rmtree(DIST, ignore_errors=True)  # 이전 한글 슬러그 산출물 잔재 제거
