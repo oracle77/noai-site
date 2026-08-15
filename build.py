@@ -64,6 +64,9 @@ HEAD = """<meta charset="utf-8">
 <link rel="canonical" href="{canonical}">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#171B1F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAF8F3'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='22' font-weight='700' text-anchor='middle' fill='%23B8362C'%3En%3C/text%3E%3C/svg%3E">
 {jsonld}"""
@@ -77,6 +80,7 @@ PAGE_SHELL = """<!DOCTYPE html>
 <div class="wrap">
   <header>
     <a class="mark" href="/">no<em>ai</em>.kr</a>
+    <span class="crumb">{crumb}</span>
   </header>
 {body}
 </div>
@@ -112,26 +116,18 @@ def breadcrumb_jsonld(name, canonical):
 GOV24_BODY = """
 <h1>정부24 발급문서 진위확인</h1>
 
-<section class="panel">
-<h2>이 페이지에서 확인할 수 있는 문서</h2>
-<ul class="doclist">
-<li><a href="/docs/jumin-deungbon/">주민등록등초본</a></li>
-<li><a href="/docs/geonchukmul-daejang/">건축물대장</a></li>
-<li><a href="/docs/toji-daejang/">토지대장·지적도</a></li>
-<li><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></li>
-<li><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></li>
-</ul>
-<p class="memo">※ 인감증명서는 이 페이지와 다른 별도 메뉴입니다 →
-<a href="/docs/ingam/">인감증명서 발급사실확인</a><br>
-※ 국세 서류(사업자등록증명, 납세증명 등)는 여기가 아니라 홈택스입니다 →
-<a href="/hometax/">홈택스</a></p>
+<section class="panel lead">
+<h2>조회하기</h2>
+<div class="kv"><span>입력 항목</span><b>문서확인번호 + 보안문자</b></div>
+<div class="kv"><span>입력하지 않는 것</span><b>이름 · 주민등록번호</b></div>
+<p style="margin:16px 0 0"><a class="cta" href="https://www.gov.kr/mw/EgovPageLink.do?link=confirm/AA040_confirm_id" target="_blank" rel="noopener">정부24 인터넷발급문서 진위확인 바로가기 →</a></p>
 </section>
 
 <section class="panel">
-<h2>1. 문서확인번호 찾기</h2>
+<h2>문서확인번호 찾기</h2>
 <p>정부24에서 발급한 문서에는 진위확인용 문서확인번호가 인쇄되어 있습니다.
 정확한 위치와 자릿수는 문서 종류마다 다릅니다(아래 표).</p>
-<h3>헷갈리기 쉬운 것</h3>
+<p class="memo" style="margin:0 0 12px">헷갈리기 쉬운 것</p>
 <ul>
 <li>우측 상단의 "1/1" → 페이지 번호입니다, 문서확인번호가 아닙니다</li>
 <li>하단의 분할된 바코드 → 번호가 아니라 전자서명입니다</li>
@@ -140,15 +136,15 @@ GOV24_BODY = """
 </section>
 
 <section class="panel">
-<h2>2. 문서별 차이</h2>
+<h2>문서별 차이</h2>
 <div class="table-wrap"><table class="diff-table">
 <thead><tr><th>문서</th><th>번호 위치</th><th>자릿수</th><th>바코드</th></tr></thead>
 <tbody>
-<tr><td><a href="/docs/jumin-deungbon/">주민등록등본</a></td><td>상단</td><td>17자리 (4-4-4-5)</td><td>3단 (세로형)</td></tr>
-<tr><td><a href="/docs/geonchukmul-daejang/">건축물대장</a></td><td>미확인</td><td>미확인</td><td>4단 (가로형)</td></tr>
-<tr><td><a href="/docs/toji-daejang/">토지대장·지적도</a></td><td>미확인</td><td>미확인</td><td>미확인</td></tr>
-<tr><td><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></td><td>미확인</td><td>미확인</td><td>미확인</td></tr>
-<tr><td><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></td><td>미확인</td><td>미확인</td><td>미확인</td></tr>
+<tr><td data-label="문서"><a href="/docs/jumin-deungbon/">주민등록등본</a></td><td data-label="위치">상단</td><td data-label="자릿수">17자리 (4-4-4-5)</td><td data-label="바코드">3단 (세로형)</td></tr>
+<tr><td data-label="문서"><a href="/docs/geonchukmul-daejang/">건축물대장</a></td><td data-label="위치">상단</td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드">4단 (가로형)</td></tr>
+<tr><td data-label="문서"><a href="/docs/toji-daejang/">토지대장·지적도</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
+<tr><td data-label="문서"><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
+<tr><td data-label="문서"><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
 </tbody>
 </table></div>
 <p class="memo">"미확인"은 실물로 확인하지 못했다는 뜻입니다. 서식 개정으로 달라질 수 있어
@@ -156,37 +152,42 @@ GOV24_BODY = """
 </section>
 
 <section class="panel">
-<h2>3. 조회하기</h2>
-<a class="cta" href="https://www.gov.kr/mw/EgovPageLink.do?link=confirm/AA040_confirm_id" target="_blank" rel="noopener">정부24 인터넷발급문서 진위확인 바로가기 →</a>
-<p class="memo">입력 항목: 문서확인번호 + 보안문자<br>
-※ 이름이나 주민등록번호는 입력하지 않습니다</p>
-</section>
-
-<section class="panel">
-<h2>4. 조회하면 무엇이 나오나</h2>
+<h2>조회하면 무엇이 나오나</h2>
 <p>원본 이미지가 화면에 표시됩니다. 손에 든 서류와 한 글자씩 대조하세요.</p>
 </section>
 
 <section class="panel">
-<h2>5. 유효기간</h2>
+<h2>유효기간</h2>
 <p>발급일로부터 90일입니다. 지나면 상대방에게 재발급을 요청해야 합니다.</p>
 </section>
 
 <section class="panel">
-<h2>6. 조회가 안 될 때</h2>
+<h2>조회가 안 될 때</h2>
 <ul>
 <li>90일이 지남 → 재발급 요청</li>
-<li>"번호가 없습니다" → 위조 가능성. 발급기관에 직접 문의하세요</li>
+<li>"번호가 없습니다" → 확인이 어렵습니다. 발급기관에 직접 문의하세요</li>
 <li>시군구·읍면동 방문 발급분 → 정부24의 별도 메뉴에서 확인합니다</li>
 <li>국세 서류를 여기서 찾는 경우 → <a href="/hometax/">홈택스</a>로 가야 합니다</li>
 </ul>
 </section>
 
 <section class="panel">
-<h2>7. 바코드로 확인하기</h2>
+<h2>바코드로 확인하기</h2>
 <p>문서 하단의 분할된 바코드에는 전자서명이 들어 있어, 정부24 앱 스마트검증으로 찍으면
 위변조가 검증됩니다.<br>
 ※ 일반 QR 앱으로는 읽히지 않습니다. 보이스아이 전용 규격입니다.</p>
+</section>
+
+<section class="panel">
+<h2>확인 가능한 문서</h2>
+<ul class="doclist">
+<li><a href="/docs/jumin-deungbon/">주민등록등초본</a></li>
+<li><a href="/docs/geonchukmul-daejang/">건축물대장</a></li>
+<li><a href="/docs/toji-daejang/">토지대장·지적도</a></li>
+<li><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></li>
+<li><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></li>
+</ul>
+<p class="memo">인감증명서 → <a href="/docs/ingam/">별도 메뉴</a> · 국세 서류 → <a href="/hometax/">홈택스</a></p>
 </section>
 
 <p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 확인 절차를 안내할 뿐입니다.
@@ -195,31 +196,31 @@ GOV24_BODY = """
 """
 
 INSTITUTIONS = [
-    {"slug": "gov24", "name": "정부24 발급문서 진위확인",
+    {"slug": "gov24", "name": "정부24 발급문서 진위확인", "short": "정부24",
      "url": "https://www.gov.kr/mw/EgovPageLink.do?link=confirm/AA040_confirm_id",
      "docs": ["주민등록등초본", "건축물대장", "토지대장·지적도", "자동차등록원부",
               "출입국사실증명·병적증명서", "인감증명서"],
      "body": GOV24_BODY},
-    {"slug": "hometax", "name": "홈택스 민원증명 원본확인",
+    {"slug": "hometax", "name": "홈택스 민원증명 원본확인", "short": "홈택스",
      "url": "https://www.hometax.go.kr",
      "docs": ["사업자등록증명·휴폐업사실증명", "납세증명·소득금액증명", "세금계산서"],
      "body": None},
-    {"slug": "wetax", "name": "위택스 진위확인",
+    {"slug": "wetax", "name": "위택스 진위확인", "short": "위택스",
      "url": "https://www.wetax.go.kr/etq/etm/cti/G010402M01.do",
      "docs": ["지방세 납세·과세증명"], "body": None},
-    {"slug": "iros", "name": "인터넷등기소",
+    {"slug": "iros", "name": "인터넷등기소", "short": "인터넷등기소",
      "url": "http://www.iros.go.kr",
      "docs": ["등기사항증명서"], "body": None},
-    {"slug": "efamily", "name": "전자가족관계등록시스템 증명서 진위확인",
+    {"slug": "efamily", "name": "전자가족관계등록시스템 증명서 진위확인", "short": "가족관계등록시스템",
      "url": "https://efamily.scourt.go.kr",
      "docs": ["가족관계증명서"], "body": None},
-    {"slug": "scourt", "name": "대법원 나의 사건검색",
+    {"slug": "scourt", "name": "대법원 나의 사건검색", "short": "대법원 사건검색",
      "url": "https://www.scourt.go.kr/portal/information/events/search/search.jsp",
      "docs": ["법원 사건 서류"], "body": None},
-    {"slug": "insurance", "name": "국민연금·건강보험 증명서 진위확인",
+    {"slug": "insurance", "name": "국민연금·건강보험 증명서 진위확인", "short": "4대보험",
      "url": "https://www.nps.or.kr/comm/footer/getOHAH0005M5.do",
      "docs": ["국민연금 가입증명서", "건강보험 자격득실확인서"], "body": None},
-    {"slug": "qnet", "name": "큐넷·학력증명 진위확인",
+    {"slug": "qnet", "name": "큐넷·학력증명 진위확인", "short": "큐넷",
      "url": "https://www.q-net.or.kr/qlf006.do?id=qlf00601",
      "docs": ["국가기술자격증", "졸업·성적증명서"], "body": None},
 ]
@@ -233,16 +234,18 @@ DOC_INST = {doc: inst["slug"] for inst in INSTITUTIONS for doc in inst["docs"]}
 JUMIN_BODY = """
 <h1>주민등록등본 진위확인</h1>
 
-<section class="panel">
-<h2>어디서 확인하나</h2>
+<section class="panel lead">
+<h2>요약</h2>
 <p class="issuer">정부24 인터넷발급문서 진위확인</p>
-<a class="cta" href="/gov24/">절차 전체 보기 →</a>
+<div class="kv"><span>문서확인번호</span><b>상단 · 17자리 (4-4-4-5)</b></div>
+<div class="kv"><span>유효기간</span><b>발급일로부터 90일</b></div>
+<p style="margin:16px 0 0"><a class="cta" href="/gov24/">절차 전체 보기 →</a></p>
 </section>
 
 <section class="panel">
-<h2>문서확인번호</h2>
-<p>문서 <b>상단</b>, 제목 왼쪽 위에 있습니다. 17자리이며 4-4-4-5 형식입니다.</p>
-<p class="memo">문서확인번호 : 1782-7993-7950-48196</p>
+<h2>문서확인번호 위치</h2>
+<p>문서 <b>상단</b>에 있습니다.</p>
+<p class="memo">예시 <code>1782-7993-7950-48196</code></p>
 </section>
 
 <section class="panel">
@@ -255,8 +258,34 @@ JUMIN_BODY = """
 </section>
 
 <section class="panel">
-<h2>유효기간</h2>
-<p>발급일로부터 90일</p>
+<h2>헷갈리기 쉬운 것</h2>
+<ul>
+<li>우측 상단 "1/1", "1/2" → 페이지 번호입니다. 등본은 세대원이 많으면 2장 이상
+출력될 수 있습니다.</li>
+<li>주민번호(13자리)와 문서확인번호(17자리)는 다릅니다. 진위확인에 주민번호는
+입력하지 않습니다.</li>
+<li>하단 3단 바코드는 전자서명이라 사람이 옮겨 적을 것이 없습니다.</li>
+</ul>
+</section>
+
+<section class="panel">
+<h2>조회하면 뭐가 나오나</h2>
+<p>"진본입니다" 같은 한 줄 통보가 아니라, 발급 당시의 원본 등본이 화면에 그대로
+다시 표시됩니다. 받은 종이와 다음 항목을 대조하십시오.</p>
+<ul>
+<li>세대주 이름, 세대구성원 수</li>
+<li>주소 — 도로명과 상세주소(동·호)까지</li>
+<li>전입일·변동사유 항목의 수와 날짜</li>
+<li>주민번호 뒷자리 공개 여부(발급받을 때 선택하는 항목)</li>
+</ul>
+</section>
+
+<section class="panel">
+<h2>조회가 안 될 때</h2>
+<div class="kv"><span>90일 지난 발급분</span><b>조회 기간 만료</b></div>
+<div class="kv"><span>시군구·읍면동 방문 발급분</span><b>정부24 별도 메뉴</b></div>
+<p class="memo">조회가 안 되는 것 자체가 위조를 뜻하지는 않습니다. 판단이 필요하면
+발급한 주민센터·구청에 문의하십시오.</p>
 </section>
 
 <p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 확인 절차를 안내할 뿐입니다.</p>
@@ -285,11 +314,11 @@ def render_institution_page(inst):
         )
         parts = [
             f"<h1>{esc(inst['name'])}</h1>",
-            '<section class="panel"><h2>이 페이지에서 확인할 수 있는 문서</h2>',
-            f'<ul class="doclist">{items}</ul></section>',
-            '<section class="panel">',
+            '<section class="panel lead"><h2>조회하기</h2>',
             f'<a class="cta" href="{esc(inst["url"])}" target="_blank" rel="noopener">{esc(inst["name"])} 바로가기 →</a>',
             '</section>',
+            '<section class="panel"><h2>확인 가능한 문서</h2>',
+            f'<ul class="doclist">{items}</ul></section>',
         ]
         for d in inst["docs"]:
             e = by_type[d]
@@ -303,7 +332,7 @@ def render_institution_page(inst):
         parts.append('<p class="back"><a href="/">← 전체 문서유형 목록으로</a></p>')
         body = '\n'.join(parts)
 
-    return PAGE_SHELL.format(head=head, body=body)
+    return PAGE_SHELL.format(head=head, body=body, crumb=esc(f"기관 · {inst['short']}"))
 
 
 def render_doc_page(entry):
@@ -317,14 +346,16 @@ def render_doc_page(entry):
         canonical=canonical, jsonld=breadcrumb_jsonld(f"{doc_type} 진위확인", canonical),
     )
 
+    crumb = esc(f"문서 · {doc_type}")
+
     if doc_type in DOC_OVERRIDES:
         body = DOC_OVERRIDES[doc_type]
-        return PAGE_SHELL.format(head=head, body=body)
+        return PAGE_SHELL.format(head=head, body=body, crumb=crumb)
 
     inst_slug = DOC_INST.get(doc_type)
     parts = [f"<h1>{esc(doc_type)} 진위확인</h1>"]
 
-    parts.append('<section class="panel"><h2>어디서 확인하나</h2>')
+    parts.append('<section class="panel lead"><h2>어디서 확인하나</h2>')
     if inst_slug:
         parts.append(f'<p class="issuer">{esc(entry["issuer"])}</p>')
         parts.append(f'<a class="cta" href="/{inst_slug}/">절차 보기 →</a>')
@@ -347,7 +378,7 @@ def render_doc_page(entry):
     else:
         parts.append('<p class="back"><a href="/">← 전체 문서유형 목록으로</a></p>')
 
-    return PAGE_SHELL.format(head=head, body='\n'.join(parts))
+    return PAGE_SHELL.format(head=head, body='\n'.join(parts), crumb=crumb)
 
 
 CATEGORIES = [
@@ -382,15 +413,15 @@ def render_index():
     body = ['<main>']
     body.append('<h1 class="tagline">받은 서류, 어디서 확인하는지 아세요?</h1>')
     body.append('<p class="sub">문서마다 진위를 확인하는 곳이 다릅니다. '
-                 '19개 문서유형별로 확인처와 절차를 정리했습니다. '
-                 'noai.kr은 위조 여부를 판정하지 않습니다 — 확인하는 방법만 안내합니다.</p>')
+                 '19개 문서유형별로 확인처와 절차를 정리했습니다.</p>')
+    body.append('<p class="scope">noai.kr은 <b>위조 여부를 판정하지 않습니다</b> — 확인하는 방법만 안내합니다.</p>')
 
-    body.append('<section class="panel"><h2>사업자번호로 바로 확인하기</h2>'
+    body.append('<section class="panel lead"><h2>사업자번호로 바로 확인하기</h2>'
                  '<p>거래처가 폐업했는지, 통신판매업 신고를 했는지 번호 10자리만 넣으면 즉시 확인됩니다.</p>'
                  '<a class="cta" href="/biz/">사업자번호 조회 →</a></section>')
 
     inst_name = {inst["slug"]: inst["name"] for inst in INSTITUTIONS}
-    common_mistake = {"사업자등록증명·휴폐업사실증명", "가족관계증명서"}
+    common_mistake = {"사업자등록증명·휴폐업사실증명"}
     body.append('<section class="panel"><h2>내 서류는 어디서 확인하나</h2>'
                  '<div class="table-wrap"><table class="diff-table">'
                  '<thead><tr><th>서류</th><th>확인처</th></tr></thead><tbody>')
@@ -422,7 +453,7 @@ def render_index():
         body.append('</ul></section>')
 
     body.append('</main>')
-    return PAGE_SHELL.format(head=head, body='\n'.join(body))
+    return PAGE_SHELL.format(head=head, body='\n'.join(body), crumb="공문서 진위확인 안내")
 
 
 TOOL_SCRIPT = """<script>
@@ -449,7 +480,9 @@ document.querySelector("#f").addEventListener("submit", async (e) => {
 });
 function render(d, r) {
   const nts = d.nts || {}, ftc = d.ftc || {};
-  let h = `<section class="panel"><h2>국세청</h2><p>${esc(nts.message || "")}</p>`
+  const ntsTagClass = nts.result === "confirmed" ? "tag ok" : (nts.result === "closed" || nts.result === "mismatch") ? "tag" : "tag none";
+  const ntsTagText = nts.result === "confirmed" ? "확인됨" : nts.result === "closed" ? "폐업" : nts.result === "mismatch" ? "불일치" : "조회불가";
+  let h = `<section class="panel"><h2>국세청 <span class="${ntsTagClass}">${ntsTagText}</span></h2><p>${esc(nts.message || "")}</p>`
         + row("상태", nts.b_stt) + row("과세유형", nts.tax_type) + row("폐업일", nts.end_dt)
         + `</section>`;
   h += `<section class="panel"><h2>공정위 통신판매사업자 등록</h2>`;
@@ -489,17 +522,19 @@ def render_tool_page():
 
     body = ['<main>']
     body.append('<h1>사업자번호 조회</h1>')
-    body.append('<p class="sub">국세청 등록상태와 공정위 통신판매사업자 등록 정보를 사실 그대로 보여드립니다. '
-                 '위조·사기 여부를 판정하지 않습니다.</p>')
-    body.append('<section class="panel">')
+    body.append('<p class="sub">국세청 등록상태와 공정위 통신판매사업자 등록 정보를 그대로 보여드립니다.</p>')
+    body.append('<p class="scope">noai.kr은 <b>위조·사기 여부를 판정하지 않습니다</b> — 공개된 등록 사실만 보여드립니다.</p>')
+    body.append('<section class="panel lead"><h2>번호 입력</h2>')
     body.append('<form id="f">')
-    body.append('<p><label>사업자등록번호 (10자리)<br>'
-                 '<input name="b_no" required inputmode="numeric" placeholder="123-45-67890" class="tin"></label></p>')
-    body.append('<details><summary>개업일자·대표자명으로 진위확인(선택)</summary>')
-    body.append('<p><label>개업일자<br><input name="start_dt" placeholder="20260101" class="tin"></label></p>')
-    body.append('<p><label>대표자명<br><input name="p_nm" placeholder="홍길동" class="tin"></label></p>')
-    body.append('<p class="memo">입력하신 대표자명은 조회 요청에만 사용되고 저장되지 않습니다.</p>')
-    body.append('</details>')
+    body.append('<label>사업자등록번호 (10자리)'
+                 '<input name="b_no" required inputmode="numeric" placeholder="123-45-67890" class="tin"></label>')
+    body.append('<p class="memo" style="margin:0 0 16px">아래 두 항목을 함께 넣으면 등록상태 조회를 넘어 '
+                 '<b>진위확인</b>까지 됩니다. 비워두면 등록상태만 조회됩니다.</p>')
+    body.append('<label>개업일자 <span class="tag none">진위확인에 필요</span>'
+                 '<input name="start_dt" placeholder="20260101" class="tin"></label>')
+    body.append('<label>대표자명 <span class="tag none">진위확인에 필요</span>'
+                 '<input name="p_nm" placeholder="홍길동" class="tin"></label>')
+    body.append('<p class="memo" style="margin:0 0 18px">대표자명은 조회 요청에만 사용되고 저장되지 않습니다.</p>')
     body.append('<p><button type="submit">조회하기</button></p>')
     body.append('</form>')
     body.append('<div id="result" aria-live="polite"></div>')
@@ -508,69 +543,123 @@ def render_tool_page():
     body.append('</main>')
     body.append(TOOL_SCRIPT)
 
-    return PAGE_SHELL.format(head=head, body='\n'.join(body))
+    return PAGE_SHELL.format(head=head, body='\n'.join(body), crumb="도구 · 사업자번호 조회")
 
 
 STYLE_CSS = """
 :root{
-  --paper:#FAF8F3; --panel:#FFFFFF; --ink:#171B1F; --ink-soft:#5C666E;
+  --paper:#FAF8F3; --panel:#FFFFFF; --ink:#171B1F; --ink-soft:#5C666E; --ink-dim:#6C757D;
   --rule:#BFD1DB; --rule-soft:#E4EBEF;
-  --stamp:#B8362C; --caution:#B77518; --clear:#2F6B52;
-  --serif:"Noto Serif KR",serif; --sans:system-ui,-apple-system,sans-serif;
-  --mono:ui-monospace,monospace;
+  --stamp:#B8362C; --caution:#8C5A11; --clear:#2F6B52; --clear-dark:#24513F;
+  --tint:#F4F7F9; --caution-bg:#FBF6EE;
+  --serif:"Noto Serif KR","Nanum Myeongjo","Apple SD Gothic Neo",serif;
+  --sans:system-ui,-apple-system,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,monospace;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
-  font-size:15px;line-height:1.65}
-.wrap{max-width:760px;margin:0 auto;padding:24px 24px 80px}
-header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:20px}
-.mark{font-family:var(--serif);font-weight:700;font-size:26px;letter-spacing:-.02em;
-  color:var(--ink);text-decoration:none}
+  font-size:15.5px;line-height:26px;-webkit-font-smoothing:antialiased;text-wrap:pretty}
+.wrap{max-width:640px;margin:0 auto;padding:20px 24px 88px}
+
+header{border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:28px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.mark{font-family:var(--serif);font-weight:700;font-size:20px;letter-spacing:-.02em;
+  color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
 .mark em{font-style:normal;color:var(--stamp)}
-.tagline{font-family:var(--serif);font-weight:500;font-size:24px;line-height:1.4;margin:0 0 12px}
-.sub{color:var(--ink-soft);font-size:14px;margin:0 0 28px;max-width:42em}
-h1{font-family:var(--serif);font-weight:500;font-size:26px;line-height:1.4;margin:0 0 24px}
-h3{font-size:14px;margin:16px 0 6px}
-.panel{background:var(--panel);border:1px solid var(--rule);padding:20px;margin-bottom:16px}
-.panel h2{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--ink-soft);margin:0 0 12px;
-  padding-bottom:8px;border-bottom:1px solid var(--rule-soft)}
-.issuer{font-weight:600;margin:0 0 10px}
-.cta{display:inline-block;font-size:13.5px;font-weight:600;color:#fff;
-  background:var(--clear);padding:9px 15px;text-decoration:none}
-.nosource{font-size:13.5px;color:var(--caution);background:#FBF6EE;
-  border-left:2px solid var(--caution);padding:9px 11px}
-ol,ul{margin:0;padding-left:20px;font-size:14px;line-height:1.8}
-.memo{font-size:13.5px;color:var(--ink-soft);line-height:1.6;margin:0}
-.unver{font-size:12.5px;color:var(--caution);background:#FBF6EE;
-  border-left:2px solid var(--caution);padding:9px 11px;margin-bottom:16px}
-.note{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin-top:24px;
-  padding-top:14px;border-top:1px solid var(--rule-soft)}
-.back{font-size:13.5px;margin-top:10px}
-.back a, .doclist a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
-.back a:hover, .doclist a:hover{border-color:var(--stamp)}
-.doclist{list-style:none;margin:0;padding:0}
-.doclist li{padding:7px 0;font-size:14.5px;border-bottom:1px solid var(--rule-soft)}
+.crumb{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink-soft)}
+
+.tagline,h1{font-family:var(--serif);font-weight:700;letter-spacing:-.025em;
+  font-size:clamp(25px,5.6vw,30px);line-height:1.42;margin:0 0 14px}
+.sub{color:var(--ink-soft);font-size:15px;margin:0 0 16px;max-width:38em}
+h3{font-family:var(--serif);font-weight:600;font-size:15.5px;margin:18px 0 6px}
+
+.scope{border-left:2px solid var(--rule);padding:2px 0 2px 13px;margin:0 0 32px;
+  font-size:13.5px;color:var(--ink-soft);line-height:1.6}
+.scope b{color:var(--ink);font-weight:600}
+
+.panel{background:var(--panel);border:1px solid var(--rule);padding:22px 20px;margin-bottom:14px}
+.panel.lead{border-color:var(--ink)}
+.panel h2{font-family:var(--serif);font-size:16.5px;font-weight:600;letter-spacing:-.01em;
+  color:var(--ink);margin:0 0 14px;
+  padding-bottom:10px;border-bottom:1px solid var(--rule-soft);
+  display:flex;align-items:center;gap:9px}
+.panel>p:first-of-type{margin-top:0}
+.panel>p:last-child,.panel>ul:last-child{margin-bottom:0}
+.issuer{font-family:var(--serif);font-weight:600;font-size:19px;line-height:1.4;margin:0 0 12px}
+
+.cta,button{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:48px;padding:0 18px;font-family:var(--sans);font-size:14.5px;font-weight:600;
+  color:#fff;background:var(--clear);border:0;text-decoration:none;cursor:pointer}
+.cta:hover,button:hover{background:var(--clear-dark)}
+button:disabled{opacity:.55;cursor:default}
+button:disabled:hover{background:var(--clear)}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+ul,ol{margin:0;padding-left:19px;font-size:14.5px;line-height:1.8}
+ul li,ol li{margin-bottom:5px}
+.memo{font-size:13.5px;color:var(--ink-soft);line-height:1.7;margin:14px 0 0}
+.memo code{font-family:var(--mono);font-size:13.5px;color:var(--ink);
+  background:var(--tint);padding:2px 6px}
+.nosource,.unver{font-size:13.5px;color:var(--caution);background:var(--caution-bg);
+  border-left:2px solid var(--caution);padding:11px 13px;margin:0 0 14px}
+.note{font-size:13px;color:var(--ink-soft);line-height:1.7;margin-top:30px;
+  padding-top:16px;border-top:1px solid var(--rule-soft)}
+.back{font-size:14px;margin-top:20px;display:flex;flex-wrap:wrap;gap:0 20px}
+.back a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule);
+  display:inline-flex;align-items:center;min-height:44px}
+.back a:hover{border-color:var(--ink)}
+
+.doclist{list-style:none;margin:0;padding:0;font-size:15px}
+.doclist li{border-bottom:1px solid var(--rule-soft)}
 .doclist li:last-child{border-bottom:0}
-.tag{font-family:var(--mono);font-size:10px;color:var(--caution);
-  border:1px solid var(--caution);padding:1px 5px;margin-left:6px}
-.table-wrap{overflow-x:auto}
-.diff-table{width:100%;border-collapse:collapse;font-size:13.5px}
-.diff-table th,.diff-table td{border-bottom:1px solid var(--rule-soft);padding:8px 6px;text-align:left}
-.diff-table th{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);text-transform:uppercase}
-.diff-table a{color:var(--ink)}
-label{display:block;font-size:13.5px;font-weight:600;margin-bottom:14px}
-.tin{display:block;width:100%;margin-top:6px;padding:9px 10px;font-size:14px;
-  border:1px solid var(--rule);background:var(--paper);color:var(--ink);font-family:var(--sans)}
-button{font-size:13.5px;font-weight:600;color:#fff;background:var(--clear);
-  border:0;padding:9px 15px;cursor:pointer}
-button:disabled{opacity:.6;cursor:default}
-details{margin-bottom:14px}
-summary{font-size:13.5px;color:var(--ink-soft);cursor:pointer;margin-bottom:10px}
-.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;
-  border-bottom:1px solid var(--rule-soft);font-size:14px}
-.kv span{color:var(--ink-soft)}
-#result:not(:empty){margin-top:16px}
+.doclist a{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 2px;
+  color:var(--ink);text-decoration:none}
+.doclist a::after{content:"›";margin-left:10px;color:var(--ink-dim);font-size:17px;line-height:1}
+.doclist a:hover{color:var(--stamp)}
+
+.tag{flex:0 0 auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;
+  color:var(--caution);border:1px solid var(--caution);padding:2px 6px}
+.tag.none{color:var(--ink-soft);border-color:var(--rule);border-style:dashed}
+.tag.ok{color:var(--clear);border-color:var(--clear)}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.diff-table{width:100%;border-collapse:collapse;font-size:14px}
+.diff-table th,.diff-table td{border-bottom:1px solid var(--rule-soft);
+  padding:11px 8px 11px 0;text-align:left;vertical-align:baseline}
+.diff-table th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+  color:var(--ink-soft);text-transform:uppercase;border-bottom:1px solid var(--rule)}
+.diff-table tr:last-child td{border-bottom:0}
+.diff-table a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
+.diff-table a:hover{border-color:var(--stamp);color:var(--stamp)}
+@media (max-width:600px){
+  .diff-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .diff-table tr{display:block;padding:12px 0;border-bottom:1px solid var(--rule)}
+  .diff-table tr:last-child{border-bottom:0}
+  .diff-table td{display:flex;gap:10px;align-items:baseline;border:0;padding:3px 0}
+  .diff-table td::before{content:attr(data-label);flex:0 0 62px;font-family:var(--mono);
+    font-size:10.5px;letter-spacing:.04em;color:var(--ink-soft)}
+  .diff-table td:first-child{font-size:15.5px;padding-bottom:5px}
+  .diff-table td:first-child::before{display:none}
+}
+
+label{font-size:14px;font-weight:600;margin-bottom:16px;
+  display:flex;flex-direction:column;align-items:flex-start}
+label .tag{margin:7px 0 0}
+.tin{display:block;width:100%;margin-top:8px;min-height:48px;padding:12px;
+  font-size:16px;font-family:var(--mono);letter-spacing:.03em;
+  border:1px solid var(--rule);background:var(--paper);color:var(--ink)}
+.tin:focus{border-color:var(--ink);background:#fff}
+details{margin:0 0 16px;border-top:1px solid var(--rule-soft);padding-top:12px}
+summary{font-size:14px;color:var(--ink-soft);cursor:pointer;
+  min-height:44px;display:flex;align-items:center}
+summary:hover{color:var(--ink)}
+
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  min-height:44px;padding:9px 0;border-bottom:1px solid var(--rule-soft);font-size:14.5px}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--ink-soft);flex:0 0 auto}
+.kv b{font-weight:600;text-align:right}
+#result:not(:empty){margin-top:20px}
 """
 
 ROBOTS_TXT = "User-agent: *\nAllow: /\n\nSitemap: https://noai.kr/sitemap.xml\n"

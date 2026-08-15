@@ -8,6 +8,9 @@
 <link rel="canonical" href="https://noai.kr/gov24/">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#171B1F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAF8F3'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='22' font-weight='700' text-anchor='middle' fill='%23B8362C'%3En%3C/text%3E%3C/svg%3E">
 <script type="application/ld+json">
@@ -32,30 +35,23 @@
 <div class="wrap">
   <header>
     <a class="mark" href="/">no<em>ai</em>.kr</a>
+    <span class="crumb">기관 · 정부24</span>
   </header>
 
 <h1>정부24 발급문서 진위확인</h1>
 
-<section class="panel">
-<h2>이 페이지에서 확인할 수 있는 문서</h2>
-<ul class="doclist">
-<li><a href="/docs/jumin-deungbon/">주민등록등초본</a></li>
-<li><a href="/docs/geonchukmul-daejang/">건축물대장</a></li>
-<li><a href="/docs/toji-daejang/">토지대장·지적도</a></li>
-<li><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></li>
-<li><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></li>
-</ul>
-<p class="memo">※ 인감증명서는 이 페이지와 다른 별도 메뉴입니다 →
-<a href="/docs/ingam/">인감증명서 발급사실확인</a><br>
-※ 국세 서류(사업자등록증명, 납세증명 등)는 여기가 아니라 홈택스입니다 →
-<a href="/hometax/">홈택스</a></p>
+<section class="panel lead">
+<h2>조회하기</h2>
+<div class="kv"><span>입력 항목</span><b>문서확인번호 + 보안문자</b></div>
+<div class="kv"><span>입력하지 않는 것</span><b>이름 · 주민등록번호</b></div>
+<p style="margin:16px 0 0"><a class="cta" href="https://www.gov.kr/mw/EgovPageLink.do?link=confirm/AA040_confirm_id" target="_blank" rel="noopener">정부24 인터넷발급문서 진위확인 바로가기 →</a></p>
 </section>
 
 <section class="panel">
-<h2>1. 문서확인번호 찾기</h2>
+<h2>문서확인번호 찾기</h2>
 <p>정부24에서 발급한 문서에는 진위확인용 문서확인번호가 인쇄되어 있습니다.
 정확한 위치와 자릿수는 문서 종류마다 다릅니다(아래 표).</p>
-<h3>헷갈리기 쉬운 것</h3>
+<p class="memo" style="margin:0 0 12px">헷갈리기 쉬운 것</p>
 <ul>
 <li>우측 상단의 "1/1" → 페이지 번호입니다, 문서확인번호가 아닙니다</li>
 <li>하단의 분할된 바코드 → 번호가 아니라 전자서명입니다</li>
@@ -64,15 +60,15 @@
 </section>
 
 <section class="panel">
-<h2>2. 문서별 차이</h2>
+<h2>문서별 차이</h2>
 <div class="table-wrap"><table class="diff-table">
 <thead><tr><th>문서</th><th>번호 위치</th><th>자릿수</th><th>바코드</th></tr></thead>
 <tbody>
-<tr><td><a href="/docs/jumin-deungbon/">주민등록등본</a></td><td>상단</td><td>17자리 (4-4-4-5)</td><td>3단 (세로형)</td></tr>
-<tr><td><a href="/docs/geonchukmul-daejang/">건축물대장</a></td><td>미확인</td><td>미확인</td><td>4단 (가로형)</td></tr>
-<tr><td><a href="/docs/toji-daejang/">토지대장·지적도</a></td><td>미확인</td><td>미확인</td><td>미확인</td></tr>
-<tr><td><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></td><td>미확인</td><td>미확인</td><td>미확인</td></tr>
-<tr><td><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></td><td>미확인</td><td>미확인</td><td>미확인</td></tr>
+<tr><td data-label="문서"><a href="/docs/jumin-deungbon/">주민등록등본</a></td><td data-label="위치">상단</td><td data-label="자릿수">17자리 (4-4-4-5)</td><td data-label="바코드">3단 (세로형)</td></tr>
+<tr><td data-label="문서"><a href="/docs/geonchukmul-daejang/">건축물대장</a></td><td data-label="위치">상단</td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드">4단 (가로형)</td></tr>
+<tr><td data-label="문서"><a href="/docs/toji-daejang/">토지대장·지적도</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
+<tr><td data-label="문서"><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
+<tr><td data-label="문서"><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></td><td data-label="위치"><span class="tag">미확인</span></td><td data-label="자릿수"><span class="tag">미확인</span></td><td data-label="바코드"><span class="tag">미확인</span></td></tr>
 </tbody>
 </table></div>
 <p class="memo">"미확인"은 실물로 확인하지 못했다는 뜻입니다. 서식 개정으로 달라질 수 있어
@@ -80,37 +76,42 @@
 </section>
 
 <section class="panel">
-<h2>3. 조회하기</h2>
-<a class="cta" href="https://www.gov.kr/mw/EgovPageLink.do?link=confirm/AA040_confirm_id" target="_blank" rel="noopener">정부24 인터넷발급문서 진위확인 바로가기 →</a>
-<p class="memo">입력 항목: 문서확인번호 + 보안문자<br>
-※ 이름이나 주민등록번호는 입력하지 않습니다</p>
-</section>
-
-<section class="panel">
-<h2>4. 조회하면 무엇이 나오나</h2>
+<h2>조회하면 무엇이 나오나</h2>
 <p>원본 이미지가 화면에 표시됩니다. 손에 든 서류와 한 글자씩 대조하세요.</p>
 </section>
 
 <section class="panel">
-<h2>5. 유효기간</h2>
+<h2>유효기간</h2>
 <p>발급일로부터 90일입니다. 지나면 상대방에게 재발급을 요청해야 합니다.</p>
 </section>
 
 <section class="panel">
-<h2>6. 조회가 안 될 때</h2>
+<h2>조회가 안 될 때</h2>
 <ul>
 <li>90일이 지남 → 재발급 요청</li>
-<li>"번호가 없습니다" → 위조 가능성. 발급기관에 직접 문의하세요</li>
+<li>"번호가 없습니다" → 확인이 어렵습니다. 발급기관에 직접 문의하세요</li>
 <li>시군구·읍면동 방문 발급분 → 정부24의 별도 메뉴에서 확인합니다</li>
 <li>국세 서류를 여기서 찾는 경우 → <a href="/hometax/">홈택스</a>로 가야 합니다</li>
 </ul>
 </section>
 
 <section class="panel">
-<h2>7. 바코드로 확인하기</h2>
+<h2>바코드로 확인하기</h2>
 <p>문서 하단의 분할된 바코드에는 전자서명이 들어 있어, 정부24 앱 스마트검증으로 찍으면
 위변조가 검증됩니다.<br>
 ※ 일반 QR 앱으로는 읽히지 않습니다. 보이스아이 전용 규격입니다.</p>
+</section>
+
+<section class="panel">
+<h2>확인 가능한 문서</h2>
+<ul class="doclist">
+<li><a href="/docs/jumin-deungbon/">주민등록등초본</a></li>
+<li><a href="/docs/geonchukmul-daejang/">건축물대장</a></li>
+<li><a href="/docs/toji-daejang/">토지대장·지적도</a></li>
+<li><a href="/docs/jadongcha-wonbu/">자동차등록원부</a></li>
+<li><a href="/docs/chulipguk-byeongjeok/">출입국사실증명·병적증명서</a></li>
+</ul>
+<p class="memo">인감증명서 → <a href="/docs/ingam/">별도 메뉴</a> · 국세 서류 → <a href="/hometax/">홈택스</a></p>
 </section>
 
 <p class="note">noai.kr은 위조 여부를 판정하지 않습니다 — 확인 절차를 안내할 뿐입니다.
