@@ -75,6 +75,8 @@ HEAD = """<meta charset="utf-8">
 <meta property="og:description" content="{description}">
 <meta property="og:url" content="{canonical}">
 <meta property="og:image" content=\"""" + OG_IMAGE + """\">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{title}">
@@ -329,7 +331,8 @@ def render_institution_page(inst):
     slug = inst["slug"]
     canonical = f"{BASE_URL}/{slug}/"
     title = f"{inst['name']} — noai.kr"
-    description = f"{inst['name']} 절차 안내: {', '.join(inst['docs'])}."
+    # 소속 문서가 1개뿐인 기관(iros/scourt/wetax)은 나열만 하면 스니펫이 너무 짧아 문장을 덧붙인다(SEO 점검).
+    description = f"{inst['name']} 절차 안내: {', '.join(inst['docs'])} 진위확인 절차와 유효기간을 안내합니다."
     head = HEAD.format(
         title=esc(title), description=esc(description[:150]),
         canonical=canonical, jsonld=breadcrumb_jsonld(inst["name"], canonical),
@@ -370,7 +373,9 @@ def render_doc_page(entry):
     slug = SLUGS[doc_type]
     canonical = f"{BASE_URL}/docs/{slug}/"
     title = f"{doc_type} 진위확인 방법 — noai.kr"
-    description = entry["steps"][0] if entry["steps"] else f"{doc_type} 진위확인 방법 안내."
+    # 검색 스니펫이 너무 짧게 잘리지 않도록 발급처+첫 단계까지 포함한다(SEO 점검, entry["steps"][0]만 쓰면 20~40자로 부실했음).
+    first_step = entry["steps"][0] if entry["steps"] else ""
+    description = f"{doc_type} 진위확인: {entry['issuer']}. {first_step}".strip()
     head = HEAD.format(
         title=esc(title), description=esc(description[:150]),
         canonical=canonical, jsonld=breadcrumb_jsonld(f"{doc_type} 진위확인", canonical),
