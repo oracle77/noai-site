@@ -321,7 +321,8 @@ JUMIN_BODY = """
 DOC_OVERRIDES = {"주민등록등초본": JUMIN_BODY}
 
 # PDF로 받는 경우가 많은 문서 — /pdf/ 로 안내한다 (PDF_TOOL_TASK.md 3절).
-PDF_HINT_DOCS = {"사업자등록증명·휴폐업사실증명", "납세증명·소득금액증명", "등기사항증명서"}
+# 등기사항증명서는 제외 — 편집 흔적 확인이 아니라 직접 재발급이 정답.
+PDF_HINT_DOCS = {"사업자등록증명·휴폐업사실증명", "납세증명·소득금액증명"}
 
 
 def render_institution_page(inst):
