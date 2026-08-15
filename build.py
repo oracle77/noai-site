@@ -1,8 +1,8 @@
-"""registry.py의 20개 문서유형 데이터를 정적 HTML 사이트로 생성한다.
+"""registry.py의 19개 문서유형 데이터를 정적 HTML 사이트로 생성한다.
 
 실행:  python site/build.py   (결과: site/dist/)
 
-구조(STRUCTURE_TASK.md): 기관 페이지(절차 본문, 8개) + 문서 페이지(검색 진입점, 20개, 짧게).
+구조(STRUCTURE_TASK.md): 기관 페이지(절차 본문, 8개) + 문서 페이지(검색 진입점, 19개, 짧게).
 같은 절차(예: 정부24)를 문서 페이지마다 반복하지 않고 기관 페이지 하나에만 쓴다.
 
 데이터 소스는 engine/registry.py의 REGISTRY를 직접 import한다 — 마크다운/JSON으로
@@ -27,7 +27,7 @@ BASE_URL = "https://noai.kr"
 BUILD_DATE = datetime.date.today().isoformat()  # TRUST_TASK.md:76 — 하드코딩 대신 빌드 시점 자동 반영
 
 # 문서명 → 영문 슬러그 (STRUCTURE_TASK.md:180). 한글 URL은 퍼센트인코딩으로 깨지므로
-# 색인 전인 지금 전환한다. 20건 전부 유니크함은 main()의 assert로 보장.
+# 색인 전인 지금 전환한다. 19건 전부 유니크함은 main()의 assert로 보장.
 SLUGS = {
     "주민등록등초본": "jumin-deungbon",
     "건축물대장": "geonchukmul-daejang",
@@ -46,7 +46,6 @@ SLUGS = {
     "국민연금 가입증명서": "gungmin-yeongeum",
     "건강보험 자격득실확인서": "geongang-boheom",
     "국가기술자격증": "gukga-jagyeok",
-    "졸업·성적증명서": "jorup-seongjeok",
     "재직·경력증명서": "jaejik-gyeongryeok",
     "부동산 계약서": "budongsan-gyeyak",
 }
@@ -287,7 +286,7 @@ INSTITUTIONS = [
      "docs": ["국민연금 가입증명서", "건강보험 자격득실확인서"], "body": None},
     {"slug": "qnet", "name": "큐넷·학력증명 진위확인", "short": "큐넷",
      "url": "https://www.q-net.or.kr/qlf006.do?id=qlf00601",
-     "docs": ["국가기술자격증", "졸업·성적증명서"], "body": None},
+     "docs": ["국가기술자격증"], "body": None},
 ]
 
 # 문서 type → 소속 기관 slug. 사문서 2건(재직·경력증명서/부동산 계약서)은 조회처가 없어
@@ -682,14 +681,14 @@ CATEGORIES = [
     ("등기", ["등기사항증명서"]),
     ("대법원", ["가족관계증명서", "법원 사건 서류"]),
     ("4대보험", ["국민연금 가입증명서", "건강보험 자격득실확인서"]),
-    ("자격·학력", ["국가기술자격증", "졸업·성적증명서"]),
+    ("자격·학력", ["국가기술자격증"]),
     ("사문서 (조회처 없음)", ["재직·경력증명서", "부동산 계약서"]),
 ]
 
 
 def render_index():
     title = "noai.kr — 공문서 진위확인 안내"
-    description = "주민등록등본부터 세금계산서까지, 20개 문서유형별로 어디서 진위를 확인하는지 안내합니다. 위조 판정 도구가 아닙니다."
+    description = "주민등록등본부터 세금계산서까지, 19개 문서유형별로 어디서 진위를 확인하는지 안내합니다. 위조 판정 도구가 아닙니다."
     jsonld = f"""<script type="application/ld+json">
 {{
   "@context": "https://schema.org",
@@ -706,7 +705,7 @@ def render_index():
     body = ['<main>']
     body.append('<h1 class="tagline">받은 서류, 어디서 확인하는지 아세요?</h1>')
     body.append('<p class="sub">문서마다 진위를 확인하는 곳이 다릅니다. '
-                 '20개 문서유형별로 확인처와 절차를 정리했습니다.</p>')
+                 '19개 문서유형별로 확인처와 절차를 정리했습니다.</p>')
     body.append('<p class="scope">noai.kr은 <b>위조 여부를 판정하지 않습니다</b> — 확인하는 방법만 안내합니다.</p>')
 
     body.append('<section class="panel lead"><h2>바로 확인할 수 있는 것</h2>'
@@ -1119,18 +1118,18 @@ def render_404():
 
 
 def main():
-    assert len(REGISTRY) == 20, f"REGISTRY 길이가 20이 아님: {len(REGISTRY)}"
+    assert len(REGISTRY) == 19, f"REGISTRY 길이가 19가 아님: {len(REGISTRY)}"
     assert set(SLUGS.keys()) == {e["type"] for e in REGISTRY}, "SLUGS가 REGISTRY type과 불일치"
-    assert len(set(SLUGS.values())) == 20, "슬러그 중복 발견"
-    # 문서 20종(출입국사실증명·병적증명서 분리 후) = 기관 허브에 속한 문서 + 허브 없이
+    assert len(set(SLUGS.values())) == 19, "슬러그 중복 발견"
+    # 문서 19종(졸업·성적증명서 제외 후) = 기관 허브에 속한 문서 + 허브 없이
     # URL만 있는 문서(예: 인감증명서) + 조회처 자체가 없는 사문서.
     doc_count = sum(len(inst["docs"]) for inst in INSTITUTIONS)
     unmapped = [e for e in REGISTRY if not DOC_INST.get(e["type"])]
     url_only = sum(1 for e in unmapped if e["url"])
     no_source = sum(1 for e in unmapped if not e["url"])
     assert no_source == 2, f"사문서(조회처 없음) 개수가 2가 아님: {no_source}"
-    assert doc_count + url_only + no_source == 20, (
-        f"기관별 문서 수({doc_count})+URL만 있는 문서({url_only})+사문서({no_source}) != 20"
+    assert doc_count + url_only + no_source == 19, (
+        f"기관별 문서 수({doc_count})+URL만 있는 문서({url_only})+사문서({no_source}) != 19"
     )
 
     shutil.rmtree(DIST, ignore_errors=True)  # 이전 한글 슬러그 산출물 잔재 제거
