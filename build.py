@@ -9,6 +9,7 @@
 한 번 더 베끼지 않는다(단일 진실원천). 기관 매핑(SLUGS/INSTITUTIONS)은 registry.py에
 없는 사이트 구조 정보라 여기서만 정의한다.
 """
+import datetime
 import html
 import shutil
 import sys
@@ -21,7 +22,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from engine.registry import REGISTRY  # noqa: E402
 
 DIST = Path(__file__).resolve().parent / "dist"
+STATIC = Path(__file__).resolve().parent / "static"
 BASE_URL = "https://noai.kr"
+BUILD_DATE = datetime.date.today().isoformat()  # TRUST_TASK.md:76 — 하드코딩 대신 빌드 시점 자동 반영
 
 # 문서명 → 영문 슬러그 (STRUCTURE_TASK.md:180). 한글 URL은 퍼센트인코딩으로 깨지므로
 # 색인 전인 지금 전환한다. 19건 전부 유니크함은 main()의 assert로 보장.
@@ -57,6 +60,8 @@ def esc(s):
     return html.escape(s or "", quote=True)
 
 
+OG_IMAGE = f"{BASE_URL}/og.png"
+
 HEAD = """<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
@@ -64,12 +69,31 @@ HEAD = """<meta charset="utf-8">
 <link rel="canonical" href="{canonical}">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#171B1F">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="noai.kr">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{description}">
+<meta property="og:url" content="{canonical}">
+<meta property="og:image" content=\"""" + OG_IMAGE + """\">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{description}">
+<meta name="twitter:image" content=\"""" + OG_IMAGE + """\">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAF8F3'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='22' font-weight='700' text-anchor='middle' fill='%23B8362C'%3En%3C/text%3E%3C/svg%3E">
 {jsonld}"""
+
+FOOTER = f"""<footer>
+<p>운영: 아파트투미 · 사업자등록번호 317-74-00501 · 대표 김주홍</p>
+<p>문의: contact@noai.kr</p>
+<p><a href="/privacy/">개인정보처리방침</a> · <a href="/terms/">이용약관</a></p>
+<p>최종 업데이트: {BUILD_DATE}</p>
+<p>© {BUILD_DATE[:4]} noai.kr</p>
+</footer>"""
 
 PAGE_SHELL = """<!DOCTYPE html>
 <html lang="ko">
@@ -83,6 +107,7 @@ PAGE_SHELL = """<!DOCTYPE html>
     <span class="crumb">{crumb}</span>
   </header>
 {body}
+{footer}
 </div>
 </body>
 </html>
@@ -332,7 +357,7 @@ def render_institution_page(inst):
         parts.append('<p class="back"><a href="/">← 전체 문서유형 목록으로</a></p>')
         body = '\n'.join(parts)
 
-    return PAGE_SHELL.format(head=head, body=body, crumb=esc(f"기관 · {inst['short']}"))
+    return PAGE_SHELL.format(head=head, body=body, crumb=esc(f"기관 · {inst['short']}"), footer=FOOTER)
 
 
 def render_doc_page(entry):
@@ -350,7 +375,7 @@ def render_doc_page(entry):
 
     if doc_type in DOC_OVERRIDES:
         body = DOC_OVERRIDES[doc_type]
-        return PAGE_SHELL.format(head=head, body=body, crumb=crumb)
+        return PAGE_SHELL.format(head=head, body=body, crumb=crumb, footer=FOOTER)
 
     inst_slug = DOC_INST.get(doc_type)
     parts = [f"<h1>{esc(doc_type)} 진위확인</h1>"]
@@ -378,7 +403,7 @@ def render_doc_page(entry):
     else:
         parts.append('<p class="back"><a href="/">← 전체 문서유형 목록으로</a></p>')
 
-    return PAGE_SHELL.format(head=head, body='\n'.join(parts), crumb=crumb)
+    return PAGE_SHELL.format(head=head, body='\n'.join(parts), crumb=crumb, footer=FOOTER)
 
 
 CATEGORIES = [
@@ -453,7 +478,7 @@ def render_index():
         body.append('</ul></section>')
 
     body.append('</main>')
-    return PAGE_SHELL.format(head=head, body='\n'.join(body), crumb="공문서 진위확인 안내")
+    return PAGE_SHELL.format(head=head, body='\n'.join(body), crumb="공문서 진위확인 안내", footer=FOOTER)
 
 
 TOOL_SCRIPT = """<script>
@@ -543,7 +568,7 @@ def render_tool_page():
     body.append('</main>')
     body.append(TOOL_SCRIPT)
 
-    return PAGE_SHELL.format(head=head, body='\n'.join(body), crumb="도구 · 사업자번호 조회")
+    return PAGE_SHELL.format(head=head, body='\n'.join(body), crumb="도구 · 사업자번호 조회", footer=FOOTER)
 
 
 STYLE_CSS = """
@@ -609,6 +634,12 @@ ul li,ol li{margin-bottom:5px}
   display:inline-flex;align-items:center;min-height:44px}
 .back a:hover{border-color:var(--ink)}
 
+footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--rule-soft);
+  font-size:12.5px;color:var(--ink-soft);line-height:1.8}
+footer p{margin:0 0 4px}
+footer a{color:var(--ink-soft);text-decoration:underline}
+footer a:hover{color:var(--ink)}
+
 .doclist{list-style:none;margin:0;padding:0;font-size:15px}
 .doclist li{border-bottom:1px solid var(--rule-soft)}
 .doclist li:last-child{border-bottom:0}
@@ -665,8 +696,111 @@ summary:hover{color:var(--ink)}
 ROBOTS_TXT = "User-agent: *\nAllow: /\n\nSitemap: https://noai.kr/sitemap.xml\n"
 
 
+PRIVACY_BODY = """
+<h1>개인정보처리방침</h1>
+
+<section class="panel">
+<h2>1. 수집하는 정보</h2>
+<p>사업자번호 조회(/biz/) 이용 시:</p>
+<ul>
+<li>사업자등록번호</li>
+<li>개업일자 (선택)</li>
+<li>대표자명 (선택)</li>
+</ul>
+<p class="memo">이 외에 어떤 개인정보도 수집하지 않습니다. 회원가입이 없으며, 문서 파일을 업로드받지 않습니다.</p>
+</section>
+
+<section class="panel">
+<h2>2. 이용 목적</h2>
+<p>국세청·공정거래위원회 조회 요청에만 사용합니다.</p>
+</section>
+
+<section class="panel">
+<h2>3. 보유 및 파기</h2>
+<p><b>저장하지 않습니다.</b> 조회 요청 처리 후 즉시 폐기되며, 서버나 데이터베이스에 기록하지 않습니다.</p>
+</section>
+
+<section class="panel">
+<h2>4. 제3자 제공</h2>
+<p>조회 목적으로 아래 기관에 전달됩니다.</p>
+<ul>
+<li>국세청 (사업자등록정보 진위확인 및 상태조회)</li>
+<li>공정거래위원회 (통신판매사업자 등록현황)</li>
+</ul>
+</section>
+
+<section class="panel">
+<h2>5. 이용자 권리</h2>
+<p>저장하는 정보가 없어 열람·정정·삭제 요청 대상이 없습니다.</p>
+</section>
+
+<section class="panel">
+<h2>6. 문의</h2>
+<p>contact@noai.kr</p>
+</section>
+
+<p class="note">시행일: {build_date}</p>
+<p class="back"><a href="/">← 홈으로</a></p>
+"""
+
+
+TERMS_BODY = """
+<h1>이용약관</h1>
+
+<section class="panel">
+<h2>서비스 성격</h2>
+<p>noai.kr은 공공문서의 진위를 확인할 수 있는 기관과 절차를 안내합니다.
+<b>위조 여부를 판정하지 않습니다.</b> 최종 확인은 발급기관을 통해 하셔야 합니다.</p>
+</section>
+
+<section class="panel">
+<h2>정보의 정확성</h2>
+<p>각 기관의 메뉴 경로와 URL은 예고 없이 변경될 수 있습니다.
+안내 내용이 실제와 다를 경우 발급기관의 안내를 따르시기 바랍니다.
+'미확인'으로 표시된 항목은 실물로 확인하지 못한 정보입니다.</p>
+</section>
+
+<section class="panel">
+<h2>사업자번호 조회</h2>
+<p>국세청·공정거래위원회가 공개한 등록 사실을 그대로 전달합니다.
+등록 상태가 정상이라도 거래의 안전을 보장하지 않습니다.</p>
+</section>
+
+<section class="panel">
+<h2>책임의 한계</h2>
+<p>본 사이트의 정보를 근거로 한 판단과 그 결과에 대해 운영자는 책임을 지지 않습니다.</p>
+</section>
+
+<p class="note">문의: contact@noai.kr</p>
+<p class="back"><a href="/">← 홈으로</a></p>
+"""
+
+
+def render_privacy_page():
+    canonical = f"{BASE_URL}/privacy/"
+    title = "개인정보처리방침 — noai.kr"
+    description = "noai.kr이 수집하는 정보, 이용 목적, 보유·파기 원칙을 안내합니다."
+    head = HEAD.format(
+        title=esc(title), description=esc(description), canonical=canonical,
+        jsonld=breadcrumb_jsonld("개인정보처리방침", canonical),
+    )
+    body = PRIVACY_BODY.format(build_date=BUILD_DATE)
+    return PAGE_SHELL.format(head=head, body=body, crumb="정책 · 개인정보처리방침", footer=FOOTER)
+
+
+def render_terms_page():
+    canonical = f"{BASE_URL}/terms/"
+    title = "이용약관 — noai.kr"
+    description = "noai.kr 서비스 성격, 정보 정확성 한계, 책임 범위를 안내합니다."
+    head = HEAD.format(
+        title=esc(title), description=esc(description), canonical=canonical,
+        jsonld=breadcrumb_jsonld("이용약관", canonical),
+    )
+    return PAGE_SHELL.format(head=head, body=TERMS_BODY, crumb="정책 · 이용약관", footer=FOOTER)
+
+
 def render_sitemap():
-    urls = [f"{BASE_URL}/", f"{BASE_URL}/biz/"]
+    urls = [f"{BASE_URL}/", f"{BASE_URL}/biz/", f"{BASE_URL}/privacy/", f"{BASE_URL}/terms/"]
     urls += [f"{BASE_URL}/{inst['slug']}/" for inst in INSTITUTIONS]
     urls += [f"{BASE_URL}/docs/{SLUGS[e['type']]}/" for e in REGISTRY]
     body = ['<?xml version="1.0" encoding="UTF-8"?>',
@@ -690,10 +824,19 @@ def main():
     (DIST / "style.css").write_text(STYLE_CSS, encoding="utf-8")
     (DIST / "robots.txt").write_text(ROBOTS_TXT, encoding="utf-8")
     (DIST / "sitemap.xml").write_text(render_sitemap(), encoding="utf-8")
+    shutil.copy(STATIC / "og.png", DIST / "og.png")
 
     biz_dir = DIST / "biz"
     biz_dir.mkdir(exist_ok=True)
     (biz_dir / "index.html").write_text(render_tool_page(), encoding="utf-8")
+
+    privacy_dir = DIST / "privacy"
+    privacy_dir.mkdir(exist_ok=True)
+    (privacy_dir / "index.html").write_text(render_privacy_page(), encoding="utf-8")
+
+    terms_dir = DIST / "terms"
+    terms_dir.mkdir(exist_ok=True)
+    (terms_dir / "index.html").write_text(render_terms_page(), encoding="utf-8")
 
     for inst in INSTITUTIONS:
         page_dir = DIST / inst["slug"]
@@ -707,7 +850,7 @@ def main():
         page_dir.mkdir(exist_ok=True)
         (page_dir / "index.html").write_text(render_doc_page(entry), encoding="utf-8")
 
-    print(f"생성 완료: {DIST} — 홈 1 + biz 1 + 기관 {len(INSTITUTIONS)} + 문서 {len(REGISTRY)} + style.css/robots.txt/sitemap.xml")
+    print(f"생성 완료: {DIST} — 홈 1 + biz 1 + privacy/terms 2 + 기관 {len(INSTITUTIONS)} + 문서 {len(REGISTRY)} + style.css/robots.txt/sitemap.xml/og.png")
 
 
 if __name__ == "__main__":
