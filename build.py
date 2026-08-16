@@ -1142,6 +1142,7 @@ def main():
     shutil.copy(STATIC / "og.png", DIST / "og.png")
     shutil.copy(STATIC / "naver2960ec4c8fba18d387cc700ca0ba0e49.html",
                 DIST / "naver2960ec4c8fba18d387cc700ca0ba0e49.html")
+    shutil.copy(STATIC / "BingSiteAuth.xml", DIST / "BingSiteAuth.xml")
 
     biz_dir = DIST / "biz"
     biz_dir.mkdir(exist_ok=True)
