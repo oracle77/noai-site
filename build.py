@@ -1140,6 +1140,8 @@ def main():
     (DIST / "robots.txt").write_text(ROBOTS_TXT, encoding="utf-8")
     (DIST / "sitemap.xml").write_text(render_sitemap(), encoding="utf-8")
     shutil.copy(STATIC / "og.png", DIST / "og.png")
+    shutil.copy(STATIC / "naver2960ec4c8fba18d387cc700ca0ba0e49.html",
+                DIST / "naver2960ec4c8fba18d387cc700ca0ba0e49.html")
 
     biz_dir = DIST / "biz"
     biz_dir.mkdir(exist_ok=True)
